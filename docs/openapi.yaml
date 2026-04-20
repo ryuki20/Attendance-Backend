@@ -1,0 +1,109 @@
+openapi: 3.0.3
+
+info:
+  title: Attendance Management API
+  description: |
+    勤怠管理システムのバックエンドAPI仕様書
+
+    ## 認証について
+    ほとんどのエンドポイントでJWT Bearer認証が必要です。
+
+    1. `/api/v1/auth/register` でユーザー登録
+    2. `/api/v1/auth/login` でログインしてトークンを取得
+    3. 取得したトークンを `Authorization: Bearer {token}` ヘッダーに含めてリクエスト
+
+    ## ロールについて
+    - **employee**: 一般ユーザー（自分の勤怠のみ操作可能）
+    - **admin**: 管理者（全ユーザーの勤怠閲覧可能）
+
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: ローカル開発環境
+  - url: https://api.example.com
+    description: 本番環境
+
+tags:
+  - name: health
+    description: ヘルスチェック
+  - name: auth
+    description: 認証関連のエンドポイント
+  - name: attendance
+    description: 勤怠管理のエンドポイント
+  - name: admin
+    description: 管理者用のエンドポイント（admin/managerロールが必要）
+
+paths:
+  /health:
+    $ref: './openapi/paths/health.yaml'
+
+  /api/v1/auth/register:
+    $ref: './openapi/paths/auth-register.yaml'
+
+  /api/v1/auth/login:
+    $ref: './openapi/paths/auth-login.yaml'
+
+  /api/v1/auth/me:
+    $ref: './openapi/paths/auth-me.yaml'
+
+  /api/v1/attendances:
+    $ref: './openapi/paths/attendances.yaml'
+
+  /api/v1/attendances/clock-in:
+    $ref: './openapi/paths/attendances-clock-in.yaml'
+
+  /api/v1/attendances/clock-out:
+    $ref: './openapi/paths/attendances-clock-out.yaml'
+
+  /api/v1/attendances/break-start:
+    $ref: './openapi/paths/attendances-break-start.yaml'
+
+  /api/v1/attendances/break-end:
+    $ref: './openapi/paths/attendances-break-end.yaml'
+
+  /api/v1/attendances/today:
+    $ref: './openapi/paths/attendances-today.yaml'
+
+  /api/v1/attendances/history:
+    $ref: './openapi/paths/attendances-history.yaml'
+
+  /api/v1/admin/attendances:
+    $ref: './openapi/paths/admin-attendances.yaml'
+
+  /api/v1/admin/attendances/user/{user_id}:
+    $ref: './openapi/paths/admin-attendances-user.yaml'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWTトークンを使用した認証。
+        ログイン後に取得したトークンを以下の形式で指定してください：
+        `Authorization: Bearer {token}`
+
+  schemas:
+    User:
+      $ref: './openapi/schemas/User.yaml'
+
+    Attendance:
+      $ref: './openapi/schemas/Attendance.yaml'
+
+    Error:
+      $ref: './openapi/schemas/Error.yaml'
+
+  responses:
+    UnauthorizedError:
+      $ref: './openapi/responses/UnauthorizedError.yaml'
+
+    ForbiddenError:
+      $ref: './openapi/responses/ForbiddenError.yaml'

@@ -1,0 +1,40 @@
+get:
+  summary: 全ユーザーの勤怠取得
+  description: |
+    全ユーザーの勤怠記録を取得します（管理者/マネージャーのみ）。
+    日付を省略した場合、開始日は今月の初日、終了日は今日になります。
+  operationId: getAllAttendances
+  tags:
+    - admin
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: start_date
+      in: query
+      description: 開始日（YYYY-MM-DD形式）省略時は今月の初日
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2024-01-01'
+    - name: end_date
+      in: query
+      description: 終了日（YYYY-MM-DD形式）省略時は今日
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2024-01-31'
+  responses:
+    '200':
+      description: 勤怠記録取得成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/Attendance.yaml'
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '403':
+      $ref: '../responses/ForbiddenError.yaml'

@@ -1,0 +1,33 @@
+post:
+  summary: 退勤
+  description: 退勤時刻を記録します
+  operationId: clockOut
+  tags:
+    - attendance
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: 退勤記録成功
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Attendance.yaml'
+    '400':
+      description: 出勤記録がない、またはすでに退勤済み
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          examples:
+            notClockedIn:
+              value:
+                error: no clock-in record found for today
+            alreadyClockedOut:
+              value:
+                error: already clocked out today
+            mustClockInFirst:
+              value:
+                error: must clock in before clocking out
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'

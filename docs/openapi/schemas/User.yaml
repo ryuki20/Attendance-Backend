@@ -1,0 +1,30 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 1
+    description: ユーザーID
+  email:
+    type: string
+    format: email
+    example: user@example.com
+    description: メールアドレス
+  name:
+    type: string
+    example: 山田太郎
+    description: 名前
+  role:
+    type: string
+    enum: [admin, manager, employee]
+    example: employee
+    description: ロール
+  created_at:
+    type: string
+    format: date-time
+    example: '2024-01-01T00:00:00Z'
+    description: 作成日時
+  updated_at:
+    type: string
+    format: date-time
+    example: '2024-01-01T00:00:00Z'
+    description: 更新日時

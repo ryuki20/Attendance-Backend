@@ -1,0 +1,25 @@
+post:
+  summary: 出勤
+  description: 出勤時刻を記録します
+  operationId: clockIn
+  tags:
+    - attendance
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: 出勤記録成功
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Attendance.yaml'
+    '400':
+      description: すでに出勤済み
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: already clocked in today
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'

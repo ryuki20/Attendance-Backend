@@ -1,0 +1,48 @@
+post:
+  summary: ログイン
+  description: メールアドレスとパスワードでログインし、JWTトークンを取得します
+  operationId: login
+  tags:
+    - auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - email
+            - password
+          properties:
+            email:
+              type: string
+              format: email
+              example: user@example.com
+              description: メールアドレス
+            password:
+              type: string
+              format: password
+              example: password123
+              description: パスワード
+  responses:
+    '200':
+      description: ログイン成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+                description: JWT認証トークン
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiZW1wbG95ZWUiLCJleHAiOjE3MDk1ODI0MDB9.example
+              user:
+                $ref: '../schemas/User.yaml'
+    '401':
+      description: 認証失敗
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: invalid credentials

@@ -1,0 +1,7 @@
+description: 権限エラー - アクセス権限がありません
+content:
+  application/json:
+    schema:
+      $ref: '../schemas/Error.yaml'
+    example:
+      error: insufficient permissions

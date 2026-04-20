@@ -1,0 +1,46 @@
+get:
+  summary: 勤怠履歴取得
+  description: |
+    指定した期間の勤怠履歴を取得します。
+    日付を省略した場合、開始日は今月の初日、終了日は今日になります。
+  operationId: getAttendanceHistory
+  tags:
+    - attendance
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: start_date
+      in: query
+      description: 開始日（YYYY-MM-DD形式）省略時は今月の初日
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2024-01-01'
+    - name: end_date
+      in: query
+      description: 終了日（YYYY-MM-DD形式）省略時は今日
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2024-01-31'
+  responses:
+    '200':
+      description: 勤怠履歴取得成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '../schemas/Attendance.yaml'
+    '400':
+      description: パラメータエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: invalid start_date format (use YYYY-MM-DD)
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'

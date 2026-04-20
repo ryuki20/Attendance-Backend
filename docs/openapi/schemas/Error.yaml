@@ -1,0 +1,6 @@
+type: object
+properties:
+  error:
+    type: string
+    example: エラーメッセージ
+    description: エラー内容

@@ -1,0 +1,58 @@
+type: object
+properties:
+  id:
+    type: integer
+    example: 1
+    description: 勤怠ID
+  user_id:
+    type: integer
+    example: 1
+    description: ユーザーID
+  date:
+    type: string
+    format: date
+    example: '2024-01-01'
+    description: 日付
+  clock_in:
+    type: string
+    format: date-time
+    nullable: true
+    example: '2024-01-01T09:00:00Z'
+    description: 出勤時刻
+  clock_out:
+    type: string
+    format: date-time
+    nullable: true
+    example: '2024-01-01T18:00:00Z'
+    description: 退勤時刻
+  break_start:
+    type: string
+    format: date-time
+    nullable: true
+    example: '2024-01-01T12:00:00Z'
+    description: 休憩開始時刻
+  break_end:
+    type: string
+    format: date-time
+    nullable: true
+    example: '2024-01-01T13:00:00Z'
+    description: 休憩終了時刻
+  status:
+    type: string
+    enum: [absent, present, late, early_leave, holiday]
+    example: present
+    description: ステータス
+  notes:
+    type: string
+    example: 定時出勤
+    description: 備考
+  created_at:
+    type: string
+    format: date-time
+    example: '2024-01-01T00:00:00Z'
+    description: 作成日時
+  updated_at:
+    type: string
+    format: date-time
+    example: '2024-01-01T00:00:00Z'
+    description: 更新日時

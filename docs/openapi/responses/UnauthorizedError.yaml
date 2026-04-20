@@ -1,0 +1,7 @@
+description: 認証エラー - トークンが無効または期限切れ
+content:
+  application/json:
+    schema:
+      $ref: '../schemas/Error.yaml'
+    example:
+      error: unauthorized

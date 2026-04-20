@@ -1,0 +1,58 @@
+post:
+  summary: ユーザー登録
+  description: 新規ユーザーを登録します
+  operationId: register
+  tags:
+    - auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - email
+            - password
+            - name
+          properties:
+            email:
+              type: string
+              format: email
+              example: user@example.com
+              description: メールアドレス
+            password:
+              type: string
+              format: password
+              minLength: 6
+              example: password123
+              description: パスワード（6文字以上）
+            name:
+              type: string
+              example: 山田太郎
+              description: 名前
+            role:
+              type: string
+              enum: [admin, manager, employee]
+              default: employee
+              example: employee
+              description: ロール（省略時はemployee）
+  responses:
+    '201':
+      description: ユーザー登録成功
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/User.yaml'
+    '400':
+      description: バリデーションエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          examples:
+            emailExists:
+              value:
+                error: email already exists
+            validationError:
+              value:
+                error: invalid request body

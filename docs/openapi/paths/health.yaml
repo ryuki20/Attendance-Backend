@@ -1,0 +1,17 @@
+get:
+  summary: ヘルスチェック
+  description: サーバーの稼働状態を確認します
+  operationId: healthCheck
+  tags:
+    - health
+  responses:
+    '200':
+      description: サーバーが正常に稼働中
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: ok
