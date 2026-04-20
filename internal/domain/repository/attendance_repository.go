@@ -9,10 +9,10 @@ import (
 
 type AttendanceRepository interface {
 	Create(ctx context.Context, attendance *entity.Attendance) error
-	FindByID(ctx context.Context, id int) (*entity.Attendance, error)
-	FindByUserAndDate(ctx context.Context, userID int, date time.Time) (*entity.Attendance, error)
+	FindByID(ctx context.Context, id string) (*entity.Attendance, error)
+	FindByUserAndDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error)
 	Update(ctx context.Context, attendance *entity.Attendance) error
-	Delete(ctx context.Context, id int) error
-	ListByUser(ctx context.Context, userID int, startDate, endDate time.Time) ([]*entity.Attendance, error)
+	Delete(ctx context.Context, id string) error
+	ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error)
 	ListByDateRange(ctx context.Context, startDate, endDate time.Time) ([]*entity.Attendance, error)
 }

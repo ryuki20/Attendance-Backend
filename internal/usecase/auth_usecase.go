@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/myuto/attendance-backend/internal/domain/entity"
@@ -50,8 +51,12 @@ func (uc *authUseCase) Register(ctx context.Context, email, password, name strin
 		role = entity.RoleEmployee
 	}
 
+	// UUIDの生成
+	userID := uuid.New().String()
+
 	// ユーザーの作成
 	user := &entity.User{
+		ID:           userID,
 		Email:        email,
 		PasswordHash: string(hashedPassword),
 		Name:         name,

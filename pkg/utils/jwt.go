@@ -8,12 +8,12 @@ import (
 )
 
 type JWTClaims struct {
-	UserID int    `json:"user_id"`
+	UserID string `json:"user_id"`
 	Role   string `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(userID int, role string, secret string, expiration time.Duration) (string, error) {
+func GenerateJWT(userID string, role string, secret string, expiration time.Duration) (string, error) {
 	claims := &JWTClaims{
 		UserID: userID,
 		Role:   role,

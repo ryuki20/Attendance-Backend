@@ -21,16 +21,15 @@ func NewAttendanceRepository(db *database.DB) repository.AttendanceRepository {
 
 func (r *attendanceRepository) Create(ctx context.Context, attendance *entity.Attendance) error {
 	query := `
-		INSERT INTO attendances (user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-		RETURNING id
+		INSERT INTO attendances (id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	`
-	err := r.db.QueryRowContext(
+	_, err := r.db.ExecContext(
 		ctx, query,
-		attendance.UserID, attendance.Date, attendance.ClockIn, attendance.ClockOut,
+		attendance.ID, attendance.UserID, attendance.Date, attendance.ClockIn, attendance.ClockOut,
 		attendance.BreakStart, attendance.BreakEnd, attendance.Status, attendance.Notes,
 		attendance.CreatedAt, attendance.UpdatedAt,
-	).Scan(&attendance.ID)
+	)
 
 	if err != nil {
 		return fmt.Errorf("failed to create attendance: %w", err)
@@ -38,7 +37,7 @@ func (r *attendanceRepository) Create(ctx context.Context, attendance *entity.At
 	return nil
 }
 
-func (r *attendanceRepository) FindByID(ctx context.Context, id int) (*entity.Attendance, error) {
+func (r *attendanceRepository) FindByID(ctx context.Context, id string) (*entity.Attendance, error) {
 	query := `
 		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
 		FROM attendances
@@ -60,7 +59,7 @@ func (r *attendanceRepository) FindByID(ctx context.Context, id int) (*entity.At
 	return attendance, nil
 }
 
-func (r *attendanceRepository) FindByUserAndDate(ctx context.Context, userID int, date time.Time) (*entity.Attendance, error) {
+func (r *attendanceRepository) FindByUserAndDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error) {
 	query := `
 		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
 		FROM attendances
@@ -107,7 +106,7 @@ func (r *attendanceRepository) Update(ctx context.Context, attendance *entity.At
 	return nil
 }
 
-func (r *attendanceRepository) Delete(ctx context.Context, id int) error {
+func (r *attendanceRepository) Delete(ctx context.Context, id string) error {
 	query := `DELETE FROM attendances WHERE id = $1`
 	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {
@@ -124,7 +123,7 @@ func (r *attendanceRepository) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (r *attendanceRepository) ListByUser(ctx context.Context, userID int, startDate, endDate time.Time) ([]*entity.Attendance, error) {
+func (r *attendanceRepository) ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error) {
 	query := `
 		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
 		FROM attendances

@@ -20,15 +20,14 @@ func NewUserRepository(db *database.DB) repository.UserRepository {
 
 func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 	query := `
-		INSERT INTO users (email, password_hash, name, role, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id
+		INSERT INTO users (id, email, password_hash, name, role, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
-	err := r.db.QueryRowContext(
+	_, err := r.db.ExecContext(
 		ctx, query,
-		user.Email, user.PasswordHash, user.Name, user.Role,
+		user.ID, user.Email, user.PasswordHash, user.Name, user.Role,
 		user.CreatedAt, user.UpdatedAt,
-	).Scan(&user.ID)
+	)
 
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
@@ -36,7 +35,7 @@ func (r *userRepository) Create(ctx context.Context, user *entity.User) error {
 	return nil
 }
 
-func (r *userRepository) FindByID(ctx context.Context, id int) (*entity.User, error) {
+func (r *userRepository) FindByID(ctx context.Context, id string) (*entity.User, error) {
 	query := `
 		SELECT id, email, password_hash, name, role, created_at, updated_at
 		FROM users
@@ -102,7 +101,7 @@ func (r *userRepository) Update(ctx context.Context, user *entity.User) error {
 	return nil
 }
 
-func (r *userRepository) Delete(ctx context.Context, id int) error {
+func (r *userRepository) Delete(ctx context.Context, id string) error {
 	query := `DELETE FROM users WHERE id = $1`
 	result, err := r.db.ExecContext(ctx, query, id)
 	if err != nil {

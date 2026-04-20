@@ -5,20 +5,21 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/myuto/attendance-backend/internal/domain/entity"
 	"github.com/myuto/attendance-backend/internal/domain/repository"
 )
 
 type AttendanceUseCase interface {
-	ClockIn(ctx context.Context, userID int) (*entity.Attendance, error)
-	ClockOut(ctx context.Context, userID int) (*entity.Attendance, error)
-	StartBreak(ctx context.Context, userID int) (*entity.Attendance, error)
-	EndBreak(ctx context.Context, userID int) (*entity.Attendance, error)
-	GetTodayAttendance(ctx context.Context, userID int) (*entity.Attendance, error)
-	GetAttendanceByDate(ctx context.Context, userID int, date time.Time) (*entity.Attendance, error)
-	GetAttendanceHistory(ctx context.Context, userID int, startDate, endDate time.Time) ([]*entity.Attendance, error)
+	ClockIn(ctx context.Context, userID string) (*entity.Attendance, error)
+	ClockOut(ctx context.Context, userID string) (*entity.Attendance, error)
+	StartBreak(ctx context.Context, userID string) (*entity.Attendance, error)
+	EndBreak(ctx context.Context, userID string) (*entity.Attendance, error)
+	GetTodayAttendance(ctx context.Context, userID string) (*entity.Attendance, error)
+	GetAttendanceByDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error)
+	GetAttendanceHistory(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error)
 	GetAllAttendances(ctx context.Context, startDate, endDate time.Time) ([]*entity.Attendance, error)
-	GetAttendancesByMonth(ctx context.Context, userID int, yearMonth string) ([]*entity.Attendance, error)
+	GetAttendancesByMonth(ctx context.Context, userID string, yearMonth string) ([]*entity.Attendance, error)
 }
 
 type attendanceUseCase struct {
@@ -31,7 +32,7 @@ func NewAttendanceUseCase(attendanceRepo repository.AttendanceRepository) Attend
 	}
 }
 
-func (uc *attendanceUseCase) ClockIn(ctx context.Context, userID int) (*entity.Attendance, error) {
+func (uc *attendanceUseCase) ClockIn(ctx context.Context, userID string) (*entity.Attendance, error) {
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
@@ -43,7 +44,9 @@ func (uc *attendanceUseCase) ClockIn(ctx context.Context, userID int) (*entity.A
 
 	if attendance == nil {
 		// 新規作成
+		attendanceID := uuid.New().String()
 		attendance = &entity.Attendance{
+			ID:        attendanceID,
 			UserID:    userID,
 			Date:      today,
 			ClockIn:   &now,
@@ -67,7 +70,7 @@ func (uc *attendanceUseCase) ClockIn(ctx context.Context, userID int) (*entity.A
 	return attendance, nil
 }
 
-func (uc *attendanceUseCase) ClockOut(ctx context.Context, userID int) (*entity.Attendance, error) {
+func (uc *attendanceUseCase) ClockOut(ctx context.Context, userID string) (*entity.Attendance, error) {
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
@@ -94,7 +97,7 @@ func (uc *attendanceUseCase) ClockOut(ctx context.Context, userID int) (*entity.
 	return attendance, nil
 }
 
-func (uc *attendanceUseCase) StartBreak(ctx context.Context, userID int) (*entity.Attendance, error) {
+func (uc *attendanceUseCase) StartBreak(ctx context.Context, userID string) (*entity.Attendance, error) {
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
@@ -121,7 +124,7 @@ func (uc *attendanceUseCase) StartBreak(ctx context.Context, userID int) (*entit
 	return attendance, nil
 }
 
-func (uc *attendanceUseCase) EndBreak(ctx context.Context, userID int) (*entity.Attendance, error) {
+func (uc *attendanceUseCase) EndBreak(ctx context.Context, userID string) (*entity.Attendance, error) {
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
@@ -148,7 +151,7 @@ func (uc *attendanceUseCase) EndBreak(ctx context.Context, userID int) (*entity.
 	return attendance, nil
 }
 
-func (uc *attendanceUseCase) GetTodayAttendance(ctx context.Context, userID int) (*entity.Attendance, error) {
+func (uc *attendanceUseCase) GetTodayAttendance(ctx context.Context, userID string) (*entity.Attendance, error) {
 	now := time.Now()
 	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 
@@ -160,7 +163,7 @@ func (uc *attendanceUseCase) GetTodayAttendance(ctx context.Context, userID int)
 	return attendance, nil
 }
 
-func (uc *attendanceUseCase) GetAttendanceByDate(ctx context.Context, userID int, date time.Time) (*entity.Attendance, error) {
+func (uc *attendanceUseCase) GetAttendanceByDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error) {
 	dateOnly := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 
 	attendance, err := uc.attendanceRepo.FindByUserAndDate(ctx, userID, dateOnly)
@@ -171,7 +174,7 @@ func (uc *attendanceUseCase) GetAttendanceByDate(ctx context.Context, userID int
 	return attendance, nil
 }
 
-func (uc *attendanceUseCase) GetAttendanceHistory(ctx context.Context, userID int, startDate, endDate time.Time) ([]*entity.Attendance, error) {
+func (uc *attendanceUseCase) GetAttendanceHistory(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error) {
 	attendances, err := uc.attendanceRepo.ListByUser(ctx, userID, startDate, endDate)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get attendance history: %w", err)
@@ -180,7 +183,7 @@ func (uc *attendanceUseCase) GetAttendanceHistory(ctx context.Context, userID in
 	return attendances, nil
 }
 
-func (uc *attendanceUseCase) GetAttendancesByMonth(ctx context.Context, userID int, yearMonth string) ([]*entity.Attendance, error) {
+func (uc *attendanceUseCase) GetAttendancesByMonth(ctx context.Context, userID string, yearMonth string) ([]*entity.Attendance, error) {
 	t, err := time.Parse("2006-01", yearMonth)
 	if err != nil {
 		return nil, fmt.Errorf("invalid year_month format")

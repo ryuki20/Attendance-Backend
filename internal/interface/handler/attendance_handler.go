@@ -3,7 +3,6 @@ package handler
 import (
 	"net/http"
 	"regexp"
-	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -19,7 +18,7 @@ func NewAttendanceHandler(attendanceUseCase usecase.AttendanceUseCase) *Attendan
 }
 
 func (h *AttendanceHandler) GetAttendances(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -51,7 +50,7 @@ func (h *AttendanceHandler) GetAttendances(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) ClockIn(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -69,7 +68,7 @@ func (h *AttendanceHandler) ClockIn(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) ClockOut(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -87,7 +86,7 @@ func (h *AttendanceHandler) ClockOut(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) StartBreak(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -105,7 +104,7 @@ func (h *AttendanceHandler) StartBreak(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) EndBreak(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -123,7 +122,7 @@ func (h *AttendanceHandler) EndBreak(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) GetToday(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -141,7 +140,7 @@ func (h *AttendanceHandler) GetToday(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) GetHistory(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -235,8 +234,8 @@ func (h *AttendanceHandler) GetAllAttendances(c echo.Context) error {
 func (h *AttendanceHandler) GetByUserID(c echo.Context) error {
 	// 管理者またはマネージャーのみアクセス可能
 
-	targetUserID, err := strconv.Atoi(c.Param("user_id"))
-	if err != nil {
+	targetUserID := c.Param("user_id")
+	if targetUserID == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "invalid user_id",
 		})
@@ -246,6 +245,7 @@ func (h *AttendanceHandler) GetByUserID(c echo.Context) error {
 	endDateStr := c.QueryParam("end_date")
 
 	var startDate, endDate time.Time
+	var err error
 
 	if startDateStr != "" {
 		startDate, err = time.Parse("2006-01-02", startDateStr)

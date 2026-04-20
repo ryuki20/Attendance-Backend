@@ -78,7 +78,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 }
 
 func (h *AuthHandler) Me(c echo.Context) error {
-	userID, ok := c.Get("user_id").(int)
+	userID, ok := c.Get("user_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
