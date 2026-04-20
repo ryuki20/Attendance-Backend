@@ -18,6 +18,7 @@ type AttendanceUseCase interface {
 	GetAttendanceByDate(ctx context.Context, userID int, date time.Time) (*entity.Attendance, error)
 	GetAttendanceHistory(ctx context.Context, userID int, startDate, endDate time.Time) ([]*entity.Attendance, error)
 	GetAllAttendances(ctx context.Context, startDate, endDate time.Time) ([]*entity.Attendance, error)
+	GetAttendancesByMonth(ctx context.Context, userID int, yearMonth string) ([]*entity.Attendance, error)
 }
 
 type attendanceUseCase struct {
@@ -174,6 +175,22 @@ func (uc *attendanceUseCase) GetAttendanceHistory(ctx context.Context, userID in
 	attendances, err := uc.attendanceRepo.ListByUser(ctx, userID, startDate, endDate)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get attendance history: %w", err)
+	}
+
+	return attendances, nil
+}
+
+func (uc *attendanceUseCase) GetAttendancesByMonth(ctx context.Context, userID int, yearMonth string) ([]*entity.Attendance, error) {
+	t, err := time.Parse("2006-01", yearMonth)
+	if err != nil {
+		return nil, fmt.Errorf("invalid year_month format")
+	}
+	startDate := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endDate := startDate.AddDate(0, 1, -1)
+
+	attendances, err := uc.attendanceRepo.ListByUser(ctx, userID, startDate, endDate)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get attendances: %w", err)
 	}
 
 	return attendances, nil

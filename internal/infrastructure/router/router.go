@@ -58,6 +58,7 @@ func (r *Router) Setup() *echo.Echo {
 
 	// Attendance routes (authenticated users)
 	attendance := protected.Group("/attendances")
+	attendance.GET("", r.attendanceHandler.GetAttendances)
 	attendance.POST("/clock-in", r.attendanceHandler.ClockIn)
 	attendance.POST("/clock-out", r.attendanceHandler.ClockOut)
 	attendance.POST("/break-start", r.attendanceHandler.StartBreak)
