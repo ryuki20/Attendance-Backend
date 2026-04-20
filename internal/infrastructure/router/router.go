@@ -1,0 +1,75 @@
+package router
+
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/myuto/attendance-backend/internal/interface/handler"
+	custommw "github.com/myuto/attendance-backend/internal/interface/middleware"
+)
+
+type Router struct {
+	echo              *echo.Echo
+	authHandler       *handler.AuthHandler
+	attendanceHandler *handler.AttendanceHandler
+	authMiddleware    *custommw.AuthMiddleware
+	corsOrigins       []string
+}
+
+func NewRouter(
+	authHandler *handler.AuthHandler,
+	attendanceHandler *handler.AttendanceHandler,
+	authMiddleware *custommw.AuthMiddleware,
+	corsOrigins []string,
+) *Router {
+	return &Router{
+		echo:              echo.New(),
+		authHandler:       authHandler,
+		attendanceHandler: attendanceHandler,
+		authMiddleware:    authMiddleware,
+		corsOrigins:       corsOrigins,
+	}
+}
+
+func (r *Router) Setup() *echo.Echo {
+	// Middleware
+	r.echo.Use(middleware.Logger())
+	r.echo.Use(middleware.Recover())
+	r.echo.Use(custommw.CORS(r.corsOrigins))
+
+	// Health check
+	r.echo.GET("/health", func(c echo.Context) error {
+		return c.JSON(200, map[string]string{"status": "ok"})
+	})
+
+	// API v1
+	v1 := r.echo.Group("/api/v1")
+
+	// Auth routes (public)
+	auth := v1.Group("/auth")
+	auth.POST("/register", r.authHandler.Register)
+	auth.POST("/login", r.authHandler.Login)
+
+	// Protected routes
+	protected := v1.Group("")
+	protected.Use(r.authMiddleware.Authenticate)
+
+	// Auth - Me endpoint
+	protected.GET("/auth/me", r.authHandler.Me)
+
+	// Attendance routes (authenticated users)
+	attendance := protected.Group("/attendances")
+	attendance.POST("/clock-in", r.attendanceHandler.ClockIn)
+	attendance.POST("/clock-out", r.attendanceHandler.ClockOut)
+	attendance.POST("/break-start", r.attendanceHandler.StartBreak)
+	attendance.POST("/break-end", r.attendanceHandler.EndBreak)
+	attendance.GET("/today", r.attendanceHandler.GetToday)
+	attendance.GET("/history", r.attendanceHandler.GetHistory)
+
+	// Admin/Manager routes
+	admin := protected.Group("/admin")
+	admin.Use(r.authMiddleware.RequireRole("admin", "manager"))
+	admin.GET("/attendances", r.attendanceHandler.GetAllAttendances)
+	admin.GET("/attendances/user/:user_id", r.attendanceHandler.GetByUserID)
+
+	return r.echo
+}
