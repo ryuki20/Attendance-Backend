@@ -1,51 +1,32 @@
 type: object
 properties:
   id:
-    type: integer
-    example: 1
+    type: string
+    format: uuid
+    example: '550e8400-e29b-41d4-a716-446655440000'
     description: 勤怠ID
   user_id:
-    type: integer
-    example: 1
+    type: string
+    format: uuid
+    example: '550e8400-e29b-41d4-a716-446655440001'
     description: ユーザーID
   date:
     type: string
     format: date
     example: '2024-01-01'
-    description: 日付
+    description: 勤怠日付（YYYY-MM-DD）
   clock_in:
-    type: string
-    format: date-time
+    type: integer
+    format: int64
     nullable: true
-    example: '2024-01-01T09:00:00Z'
-    description: 出勤時刻
+    example: 1704067200000
+    description: 出勤時刻（エポックミリ秒）
   clock_out:
-    type: string
-    format: date-time
+    type: integer
+    format: int64
     nullable: true
-    example: '2024-01-01T18:00:00Z'
-    description: 退勤時刻
-  break_start:
-    type: string
-    format: date-time
-    nullable: true
-    example: '2024-01-01T12:00:00Z'
-    description: 休憩開始時刻
-  break_end:
-    type: string
-    format: date-time
-    nullable: true
-    example: '2024-01-01T13:00:00Z'
-    description: 休憩終了時刻
-  status:
-    type: string
-    enum: [absent, present, late, early_leave, holiday]
-    example: present
-    description: ステータス
-  notes:
-    type: string
-    example: 定時出勤
-    description: 備考
+    example: 1704099600000
+    description: 退勤時刻（エポックミリ秒）
   created_at:
     type: string
     format: date-time
