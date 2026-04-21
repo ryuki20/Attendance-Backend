@@ -139,22 +139,6 @@ func (r *attendanceRepository) ListByUser(ctx context.Context, userID string, st
 	return r.scanAttendances(rows)
 }
 
-func (r *attendanceRepository) ListByDateRange(ctx context.Context, startDate, endDate time.Time) ([]*entity.Attendance, error) {
-	query := `
-		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
-		FROM attendances
-		WHERE date BETWEEN $1 AND $2
-		ORDER BY date DESC, user_id ASC
-	`
-	rows, err := r.db.QueryContext(ctx, query, startDate, endDate)
-	if err != nil {
-		return nil, fmt.Errorf("failed to list attendances: %w", err)
-	}
-	defer rows.Close()
-
-	return r.scanAttendances(rows)
-}
-
 func (r *attendanceRepository) scanAttendances(rows *sql.Rows) ([]*entity.Attendance, error) {
 	var attendances []*entity.Attendance
 	for rows.Next() {

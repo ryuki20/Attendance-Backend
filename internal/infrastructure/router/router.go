@@ -61,16 +61,6 @@ func (r *Router) Setup() *echo.Echo {
 	attendance.GET("", r.attendanceHandler.GetAttendances)
 	attendance.POST("/clock-in", r.attendanceHandler.ClockIn)
 	attendance.POST("/clock-out", r.attendanceHandler.ClockOut)
-	attendance.POST("/break-start", r.attendanceHandler.StartBreak)
-	attendance.POST("/break-end", r.attendanceHandler.EndBreak)
-	attendance.GET("/today", r.attendanceHandler.GetToday)
-	attendance.GET("/history", r.attendanceHandler.GetHistory)
-
-	// Admin/Manager routes
-	admin := protected.Group("/admin")
-	admin.Use(r.authMiddleware.RequireRole("admin", "manager"))
-	admin.GET("/attendances", r.attendanceHandler.GetAllAttendances)
-	admin.GET("/attendances/user/:user_id", r.attendanceHandler.GetByUserID)
 
 	return r.echo
 }

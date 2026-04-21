@@ -14,5 +14,4 @@ type AttendanceRepository interface {
 	Update(ctx context.Context, attendance *entity.Attendance) error
 	Delete(ctx context.Context, id string) error
 	ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error)
-	ListByDateRange(ctx context.Context, startDate, endDate time.Time) ([]*entity.Attendance, error)
 }

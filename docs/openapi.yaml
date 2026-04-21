@@ -12,10 +12,6 @@ info:
     2. `/api/v1/auth/login` でログインしてトークンを取得
     3. 取得したトークンを `Authorization: Bearer {token}` ヘッダーに含めてリクエスト
 
-    ## ロールについて
-    - **employee**: 一般ユーザー（自分の勤怠のみ操作可能）
-    - **admin**: 管理者（全ユーザーの勤怠閲覧可能）
-
   version: 1.0.0
   contact:
     name: API Support
@@ -37,8 +33,6 @@ tags:
     description: 認証関連のエンドポイント
   - name: attendance
     description: 勤怠管理のエンドポイント
-  - name: admin
-    description: 管理者用のエンドポイント（admin/managerロールが必要）
 
 paths:
   /health:
@@ -61,24 +55,6 @@ paths:
 
   /api/v1/attendances/clock-out:
     $ref: './openapi/paths/attendances-clock-out.yaml'
-
-  /api/v1/attendances/break-start:
-    $ref: './openapi/paths/attendances-break-start.yaml'
-
-  /api/v1/attendances/break-end:
-    $ref: './openapi/paths/attendances-break-end.yaml'
-
-  /api/v1/attendances/today:
-    $ref: './openapi/paths/attendances-today.yaml'
-
-  /api/v1/attendances/history:
-    $ref: './openapi/paths/attendances-history.yaml'
-
-  /api/v1/admin/attendances:
-    $ref: './openapi/paths/admin-attendances.yaml'
-
-  /api/v1/admin/attendances/user/{user_id}:
-    $ref: './openapi/paths/admin-attendances-user.yaml'
 
 components:
   securitySchemes:
@@ -104,6 +80,3 @@ components:
   responses:
     UnauthorizedError:
       $ref: './openapi/responses/UnauthorizedError.yaml'
-
-    ForbiddenError:
-      $ref: './openapi/responses/ForbiddenError.yaml'

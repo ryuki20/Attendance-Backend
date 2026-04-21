@@ -16,13 +16,12 @@ type UserRole string
 
 const (
 	RoleAdmin    UserRole = "admin"
-	RoleManager  UserRole = "manager"
 	RoleEmployee UserRole = "employee"
 )
 
 func (r UserRole) IsValid() bool {
 	switch r {
-	case RoleAdmin, RoleManager, RoleEmployee:
+	case RoleAdmin, RoleEmployee:
 		return true
 	default:
 		return false

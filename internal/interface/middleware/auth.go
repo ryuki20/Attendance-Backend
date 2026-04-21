@@ -48,25 +48,3 @@ func (m *AuthMiddleware) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (m *AuthMiddleware) RequireRole(roles ...string) echo.MiddlewareFunc {
-	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
-			userRole, ok := c.Get("role").(string)
-			if !ok {
-				return c.JSON(http.StatusUnauthorized, map[string]string{
-					"error": "unauthorized",
-				})
-			}
-
-			for _, role := range roles {
-				if userRole == role {
-					return next(c)
-				}
-			}
-
-			return c.JSON(http.StatusForbidden, map[string]string{
-				"error": "insufficient permissions",
-			})
-		}
-	}
-}
