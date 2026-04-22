@@ -35,5 +35,8 @@ COPY . .
 # Expose port
 EXPOSE 8080
 
+# Create tmp directory
+RUN mkdir -p /app/tmp
+
 # Run air for hot reload
 CMD ["air", "-c", ".air.toml"]

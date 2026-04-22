@@ -21,6 +21,7 @@ services:
     volumes:
       - .:/app
       - go-modules:/go/pkg/mod
+      - /app/tmp
     depends_on:
       db:
         condition: service_healthy
