@@ -60,7 +60,6 @@ func (uc *attendanceUseCase) ClockIn(ctx context.Context, userID string) (*entit
 			UserID:    userID,
 			Date:      today,
 			ClockIn:   &now,
-			Status:    entity.StatusPresent,
 			CreatedAt: now,
 			UpdatedAt: now,
 		}
@@ -70,7 +69,6 @@ func (uc *attendanceUseCase) ClockIn(ctx context.Context, userID string) (*entit
 	} else {
 		// 更新
 		attendance.ClockIn = &now
-		attendance.Status = entity.StatusPresent
 		attendance.UpdatedAt = now
 		if err := uc.attendanceRepo.Update(ctx, attendance); err != nil {
 			return nil, fmt.Errorf("failed to clock in: %w", err)

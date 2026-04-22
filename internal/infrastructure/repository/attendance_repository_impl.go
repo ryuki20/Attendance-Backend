@@ -21,13 +21,12 @@ func NewAttendanceRepository(db *database.DB) repository.AttendanceRepository {
 
 func (r *attendanceRepository) Create(ctx context.Context, attendance *entity.Attendance) error {
 	query := `
-		INSERT INTO attendances (id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO attendances (id, user_id, date, clock_in, clock_out, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 	_, err := r.db.ExecContext(
 		ctx, query,
 		attendance.ID, attendance.UserID, attendance.Date, attendance.ClockIn, attendance.ClockOut,
-		attendance.BreakStart, attendance.BreakEnd, attendance.Status, attendance.Notes,
 		attendance.CreatedAt, attendance.UpdatedAt,
 	)
 
@@ -39,15 +38,15 @@ func (r *attendanceRepository) Create(ctx context.Context, attendance *entity.At
 
 func (r *attendanceRepository) FindByID(ctx context.Context, id string) (*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
+		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
 		WHERE id = $1
 	`
 	attendance := &entity.Attendance{}
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&attendance.ID, &attendance.UserID, &attendance.Date,
-		&attendance.ClockIn, &attendance.ClockOut, &attendance.BreakStart, &attendance.BreakEnd,
-		&attendance.Status, &attendance.Notes, &attendance.CreatedAt, &attendance.UpdatedAt,
+		&attendance.ClockIn, &attendance.ClockOut,
+		&attendance.CreatedAt, &attendance.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -61,15 +60,15 @@ func (r *attendanceRepository) FindByID(ctx context.Context, id string) (*entity
 
 func (r *attendanceRepository) FindByUserAndDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
+		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
 		WHERE user_id = $1 AND date = $2
 	`
 	attendance := &entity.Attendance{}
 	err := r.db.QueryRowContext(ctx, query, userID, date).Scan(
 		&attendance.ID, &attendance.UserID, &attendance.Date,
-		&attendance.ClockIn, &attendance.ClockOut, &attendance.BreakStart, &attendance.BreakEnd,
-		&attendance.Status, &attendance.Notes, &attendance.CreatedAt, &attendance.UpdatedAt,
+		&attendance.ClockIn, &attendance.ClockOut,
+		&attendance.CreatedAt, &attendance.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -84,13 +83,12 @@ func (r *attendanceRepository) FindByUserAndDate(ctx context.Context, userID str
 func (r *attendanceRepository) Update(ctx context.Context, attendance *entity.Attendance) error {
 	query := `
 		UPDATE attendances
-		SET clock_in = $1, clock_out = $2, break_start = $3, break_end = $4, status = $5, notes = $6, updated_at = $7
-		WHERE id = $8
+		SET clock_in = $1, clock_out = $2, updated_at = $3
+		WHERE id = $4
 	`
 	result, err := r.db.ExecContext(
 		ctx, query,
-		attendance.ClockIn, attendance.ClockOut, attendance.BreakStart, attendance.BreakEnd,
-		attendance.Status, attendance.Notes, attendance.UpdatedAt, attendance.ID,
+		attendance.ClockIn, attendance.ClockOut, attendance.UpdatedAt, attendance.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update attendance: %w", err)
@@ -125,7 +123,7 @@ func (r *attendanceRepository) Delete(ctx context.Context, id string) error {
 
 func (r *attendanceRepository) ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, break_start, break_end, status, notes, created_at, updated_at
+		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
 		WHERE user_id = $1 AND date BETWEEN $2 AND $3
 		ORDER BY date DESC
@@ -145,8 +143,8 @@ func (r *attendanceRepository) scanAttendances(rows *sql.Rows) ([]*entity.Attend
 		attendance := &entity.Attendance{}
 		err := rows.Scan(
 			&attendance.ID, &attendance.UserID, &attendance.Date,
-			&attendance.ClockIn, &attendance.ClockOut, &attendance.BreakStart, &attendance.BreakEnd,
-			&attendance.Status, &attendance.Notes, &attendance.CreatedAt, &attendance.UpdatedAt,
+			&attendance.ClockIn, &attendance.ClockOut,
+			&attendance.CreatedAt, &attendance.UpdatedAt,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan attendance: %w", err)

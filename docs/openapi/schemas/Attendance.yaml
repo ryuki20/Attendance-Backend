@@ -16,17 +16,17 @@ properties:
     example: '2024-01-01'
     description: 勤怠日付（YYYY-MM-DD）
   clock_in:
-    type: integer
-    format: int64
+    type: string
+    format: date-time
     nullable: true
-    example: 1704067200000
-    description: 出勤時刻（エポックミリ秒）
+    example: '2024-01-01T09:00:00+09:00'
+    description: 出勤時刻（ISO 8601）
   clock_out:
-    type: integer
-    format: int64
+    type: string
+    format: date-time
     nullable: true
-    example: 1704099600000
-    description: 退勤時刻（エポックミリ秒）
+    example: '2024-01-01T18:00:00+09:00'
+    description: 退勤時刻（ISO 8601）
   created_at:
     type: string
     format: date-time

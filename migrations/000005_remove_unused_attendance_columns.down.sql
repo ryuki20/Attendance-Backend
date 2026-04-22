@@ -1,0 +1,7 @@
+ALTER TABLE attendances
+    ADD COLUMN IF NOT EXISTS break_start TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS break_end TIMESTAMP,
+    ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'absent',
+    ADD COLUMN IF NOT EXISTS notes TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_attendances_status ON attendances(status);
