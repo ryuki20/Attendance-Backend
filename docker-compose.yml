@@ -21,7 +21,7 @@ services:
     volumes:
       - .:/app
       - go-modules:/go/pkg/mod
-      - /app/tmp
+      - app-tmp:/app/tmp
     depends_on:
       db:
         condition: service_healthy
@@ -50,6 +50,7 @@ services:
 volumes:
   postgres-data:
   go-modules:
+  app-tmp:
 
 networks:
   attendance-network:
