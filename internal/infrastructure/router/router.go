@@ -34,6 +34,9 @@ func NewRouter(
 }
 
 func (r *Router) Setup() *echo.Echo {
+	// Validator
+	r.echo.Validator = custommw.NewCustomValidator()
+
 	// Middleware
 	r.echo.Use(middleware.Logger())
 	r.echo.Use(middleware.Recover())

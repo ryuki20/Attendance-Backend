@@ -20,7 +20,7 @@ type RegisterRequest struct {
 	Email    string          `json:"email" validate:"required,email"`
 	Password string          `json:"password" validate:"required,min=6"`
 	Name     string          `json:"name" validate:"required"`
-	Role     entity.UserRole `json:"role"`
+	Role     entity.UserRole `json:"role" validate:"omitempty,oneof=admin employee"`
 }
 
 type LoginRequest struct {
@@ -38,6 +38,12 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "invalid request body",
+		})
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
 		})
 	}
 
@@ -61,6 +67,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "invalid request body",
+		})
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": err.Error(),
 		})
 	}
 
