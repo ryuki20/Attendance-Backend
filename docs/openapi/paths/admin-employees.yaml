@@ -1,0 +1,94 @@
+get:
+  summary: 社員一覧取得
+  description: |
+    全社員の一覧を取得します。
+
+    **このエンドポイントはadminロールのユーザーのみ実行できます。**
+  operationId: getAdminEmployees
+  tags:
+    - admin
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: page
+      in: query
+      description: ページ番号（1始まり）
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        example: 1
+    - name: per_page
+      in: query
+      description: 1ページあたりの件数
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
+    - name: role
+      in: query
+      description: ロールでフィルタリング
+      required: false
+      schema:
+        type: string
+        enum: [admin, employee]
+        example: employee
+  responses:
+    '200':
+      description: 社員一覧取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '../schemas/User.yaml'
+              total:
+                type: integer
+                description: 全件数
+                example: 42
+              page:
+                type: integer
+                description: 現在のページ番号
+                example: 1
+              per_page:
+                type: integer
+                description: 1ページあたりの件数
+                example: 20
+    '400':
+      description: パラメータエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          examples:
+            invalid_page:
+              summary: pageが不正
+              value:
+                error: page must be a positive integer
+            invalid_per_page:
+              summary: per_pageが不正
+              value:
+                error: per_page must be between 1 and 100
+            invalid_role:
+              summary: roleが不正
+              value:
+                error: role must be one of admin, employee
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '403':
+      $ref: '../responses/ForbiddenError.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error
