@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/spf13/viper"
@@ -66,7 +67,7 @@ func Load() (*Config, error) {
 			Expiration: time.Duration(viper.GetInt("JWT_EXPIRATION_HOURS")) * time.Hour,
 		},
 		CORS: CORSConfig{
-			AllowOrigins: viper.GetStringSlice("CORS_ALLOW_ORIGINS"),
+			AllowOrigins: parseCORSOrigins(viper.GetString("CORS_ALLOW_ORIGINS")),
 		},
 	}
 
@@ -81,6 +82,16 @@ func Load() (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func parseCORSOrigins(s string) []string {
+	var origins []string
+	for _, o := range strings.Split(s, ",") {
+		if trimmed := strings.TrimSpace(o); trimmed != "" {
+			origins = append(origins, trimmed)
+		}
+	}
+	return origins
 }
 
 func getEnvOrDefault(key, defaultValue string) string {
