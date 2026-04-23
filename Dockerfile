@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.23-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 # Install air for hot reload
 RUN go install github.com/air-verse/air@v1.52.3
@@ -8,7 +8,7 @@ RUN go install github.com/air-verse/air@v1.52.3
 WORKDIR /app
 
 # Development stage
-FROM golang:1.23-alpine
+FROM golang:1.25-alpine
 
 # Install necessary packages
 RUN apk add --no-cache git curl
