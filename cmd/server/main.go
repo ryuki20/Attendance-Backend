@@ -36,16 +36,18 @@ func main() {
 	// ユースケースの初期化
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWT.Secret, cfg.JWT.Expiration)
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
+	adminUseCase := usecase.NewAdminUseCase(userRepo)
 
 	// ハンドラーの初期化
 	authHandler := handler.NewAuthHandler(authUseCase)
 	attendanceHandler := handler.NewAttendanceHandler(attendanceUseCase)
+	adminHandler := handler.NewAdminHandler(adminUseCase)
 
 	// ミドルウェアの初期化
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
 
 	// ルーターの初期化
-	r := router.NewRouter(authHandler, attendanceHandler, authMiddleware, cfg.CORS.AllowOrigins)
+	r := router.NewRouter(authHandler, attendanceHandler, adminHandler, authMiddleware, cfg.CORS.AllowOrigins)
 	e := r.Setup()
 
 	// サーバーの起動

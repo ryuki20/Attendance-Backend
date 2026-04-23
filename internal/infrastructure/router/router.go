@@ -11,6 +11,7 @@ type Router struct {
 	echo              *echo.Echo
 	authHandler       *handler.AuthHandler
 	attendanceHandler *handler.AttendanceHandler
+	adminHandler      *handler.AdminHandler
 	authMiddleware    *custommw.AuthMiddleware
 	corsOrigins       []string
 }
@@ -18,6 +19,7 @@ type Router struct {
 func NewRouter(
 	authHandler *handler.AuthHandler,
 	attendanceHandler *handler.AttendanceHandler,
+	adminHandler *handler.AdminHandler,
 	authMiddleware *custommw.AuthMiddleware,
 	corsOrigins []string,
 ) *Router {
@@ -25,6 +27,7 @@ func NewRouter(
 		echo:              echo.New(),
 		authHandler:       authHandler,
 		attendanceHandler: attendanceHandler,
+		adminHandler:      adminHandler,
 		authMiddleware:    authMiddleware,
 		corsOrigins:       corsOrigins,
 	}
@@ -61,6 +64,11 @@ func (r *Router) Setup() *echo.Echo {
 	attendance.GET("", r.attendanceHandler.GetAttendances)
 	attendance.POST("/clock-in", r.attendanceHandler.ClockIn)
 	attendance.POST("/clock-out", r.attendanceHandler.ClockOut)
+
+	// Admin routes (admin only)
+	admin := protected.Group("/admin")
+	admin.Use(r.authMiddleware.AdminOnly)
+	admin.GET("/employees", r.adminHandler.GetEmployees)
 
 	return r.echo
 }

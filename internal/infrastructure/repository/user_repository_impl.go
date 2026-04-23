@@ -118,14 +118,32 @@ func (r *userRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *userRepository) List(ctx context.Context, limit, offset int) ([]*entity.User, error) {
-	query := `
-		SELECT id, email, password_hash, name, role, created_at, updated_at
-		FROM users
-		ORDER BY created_at DESC
-		LIMIT $1 OFFSET $2
-	`
-	rows, err := r.db.QueryContext(ctx, query, limit, offset)
+func (r *userRepository) List(ctx context.Context, limit, offset int, role *entity.UserRole) ([]*entity.User, error) {
+	var (
+		query string
+		args  []interface{}
+	)
+
+	if role != nil {
+		query = `
+			SELECT id, email, password_hash, name, role, created_at, updated_at
+			FROM users
+			WHERE role = $1
+			ORDER BY created_at DESC
+			LIMIT $2 OFFSET $3
+		`
+		args = []interface{}{*role, limit, offset}
+	} else {
+		query = `
+			SELECT id, email, password_hash, name, role, created_at, updated_at
+			FROM users
+			ORDER BY created_at DESC
+			LIMIT $1 OFFSET $2
+		`
+		args = []interface{}{limit, offset}
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list users: %w", err)
 	}
@@ -149,4 +167,24 @@ func (r *userRepository) List(ctx context.Context, limit, offset int) ([]*entity
 	}
 
 	return users, nil
+}
+
+func (r *userRepository) Count(ctx context.Context, role *entity.UserRole) (int, error) {
+	var (
+		query string
+		args  []interface{}
+	)
+
+	if role != nil {
+		query = `SELECT COUNT(*) FROM users WHERE role = $1`
+		args = []interface{}{*role}
+	} else {
+		query = `SELECT COUNT(*) FROM users`
+	}
+
+	var count int
+	if err := r.db.QueryRowContext(ctx, query, args...).Scan(&count); err != nil {
+		return 0, fmt.Errorf("failed to count users: %w", err)
+	}
+	return count, nil
 }
