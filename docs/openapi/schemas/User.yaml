@@ -16,7 +16,7 @@ properties:
     description: 名前
   role:
     type: string
-    enum: [admin, manager, employee]
+    enum: [admin, employee]
     example: employee
     description: ロール
   created_at:

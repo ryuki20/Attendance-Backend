@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"github.com/myuto/attendance-backend/internal/domain/entity"
 	"github.com/myuto/attendance-backend/pkg/utils"
 )
 
@@ -44,6 +45,18 @@ func (m *AuthMiddleware) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("user_id", claims.UserID)
 		c.Set("role", claims.Role)
 
+		return next(c)
+	}
+}
+
+func (m *AuthMiddleware) AdminOnly(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		role, ok := c.Get("role").(string)
+		if !ok || role != string(entity.RoleAdmin) {
+			return c.JSON(http.StatusForbidden, map[string]string{
+				"error": "insufficient permissions",
+			})
+		}
 		return next(c)
 	}
 }
