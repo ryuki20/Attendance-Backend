@@ -36,7 +36,7 @@ func main() {
 	// ユースケースの初期化
 	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWT.Secret, cfg.JWT.Expiration)
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
-	adminUseCase := usecase.NewAdminUseCase(userRepo)
+	adminUseCase := usecase.NewAdminUseCase(userRepo, attendanceRepo)
 
 	// ハンドラーの初期化
 	authHandler := handler.NewAuthHandler(authUseCase)

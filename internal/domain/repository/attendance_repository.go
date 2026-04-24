@@ -14,4 +14,6 @@ type AttendanceRepository interface {
 	Update(ctx context.Context, attendance *entity.Attendance) error
 	Delete(ctx context.Context, id string) error
 	ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error)
+	ListByUserPaged(ctx context.Context, userID string, startDate, endDate time.Time, limit, offset int) ([]*entity.Attendance, error)
+	CountByUser(ctx context.Context, userID string, startDate, endDate time.Time) (int, error)
 }

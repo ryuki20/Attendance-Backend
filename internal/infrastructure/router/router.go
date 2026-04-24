@@ -72,6 +72,7 @@ func (r *Router) Setup() *echo.Echo {
 	admin := protected.Group("/admin")
 	admin.Use(r.authMiddleware.AdminOnly)
 	admin.GET("/employees", r.adminHandler.GetEmployees)
+	admin.GET("/employees/:id", r.adminHandler.GetEmployee)
 
 	return r.echo
 }
