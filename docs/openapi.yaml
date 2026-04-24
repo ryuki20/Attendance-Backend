@@ -71,6 +71,9 @@ paths:
   /api/v1/admin/employees:
     $ref: './openapi/paths/admin-employees.yaml'
 
+  /api/v1/admin/employees/{id}:
+    $ref: './openapi/paths/admin-employees-id.yaml'
+
 components:
   securitySchemes:
     bearerAuth:
