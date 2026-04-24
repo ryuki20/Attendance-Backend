@@ -21,12 +21,12 @@ func NewAttendanceRepository(db *database.DB) repository.AttendanceRepository {
 
 func (r *attendanceRepository) Create(ctx context.Context, attendance *entity.Attendance) error {
 	query := `
-		INSERT INTO attendances (id, user_id, date, clock_in, clock_out, created_at, updated_at)
+		INSERT INTO attendances (id, employee_id, date, clock_in, clock_out, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 	_, err := r.db.ExecContext(
 		ctx, query,
-		attendance.ID, attendance.UserID, attendance.Date, attendance.ClockIn, attendance.ClockOut,
+		attendance.ID, attendance.EmployeeID, attendance.Date, attendance.ClockIn, attendance.ClockOut,
 		attendance.CreatedAt, attendance.UpdatedAt,
 	)
 
@@ -38,13 +38,13 @@ func (r *attendanceRepository) Create(ctx context.Context, attendance *entity.At
 
 func (r *attendanceRepository) FindByID(ctx context.Context, id string) (*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
+		SELECT id, employee_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
 		WHERE id = $1
 	`
 	attendance := &entity.Attendance{}
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&attendance.ID, &attendance.UserID, &attendance.Date,
+		&attendance.ID, &attendance.EmployeeID, &attendance.Date,
 		&attendance.ClockIn, &attendance.ClockOut,
 		&attendance.CreatedAt, &attendance.UpdatedAt,
 	)
@@ -58,15 +58,15 @@ func (r *attendanceRepository) FindByID(ctx context.Context, id string) (*entity
 	return attendance, nil
 }
 
-func (r *attendanceRepository) FindByUserAndDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error) {
+func (r *attendanceRepository) FindByEmployeeAndDate(ctx context.Context, employeeID string, date time.Time) (*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
+		SELECT id, employee_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
-		WHERE user_id = $1 AND date = $2
+		WHERE employee_id = $1 AND date = $2
 	`
 	attendance := &entity.Attendance{}
-	err := r.db.QueryRowContext(ctx, query, userID, date).Scan(
-		&attendance.ID, &attendance.UserID, &attendance.Date,
+	err := r.db.QueryRowContext(ctx, query, employeeID, date).Scan(
+		&attendance.ID, &attendance.EmployeeID, &attendance.Date,
 		&attendance.ClockIn, &attendance.ClockOut,
 		&attendance.CreatedAt, &attendance.UpdatedAt,
 	)
@@ -121,14 +121,14 @@ func (r *attendanceRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (r *attendanceRepository) ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error) {
+func (r *attendanceRepository) ListByEmployee(ctx context.Context, employeeID string, startDate, endDate time.Time) ([]*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
+		SELECT id, employee_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
-		WHERE user_id = $1 AND date BETWEEN $2 AND $3
+		WHERE employee_id = $1 AND date BETWEEN $2 AND $3
 		ORDER BY date DESC
 	`
-	rows, err := r.db.QueryContext(ctx, query, userID, startDate, endDate)
+	rows, err := r.db.QueryContext(ctx, query, employeeID, startDate, endDate)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list attendances: %w", err)
 	}
@@ -137,15 +137,15 @@ func (r *attendanceRepository) ListByUser(ctx context.Context, userID string, st
 	return r.scanAttendances(rows)
 }
 
-func (r *attendanceRepository) ListByUserPaged(ctx context.Context, userID string, startDate, endDate time.Time, limit, offset int) ([]*entity.Attendance, error) {
+func (r *attendanceRepository) ListByEmployeePaged(ctx context.Context, employeeID string, startDate, endDate time.Time, limit, offset int) ([]*entity.Attendance, error) {
 	query := `
-		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
+		SELECT id, employee_id, date, clock_in, clock_out, created_at, updated_at
 		FROM attendances
-		WHERE user_id = $1 AND date BETWEEN $2 AND $3
+		WHERE employee_id = $1 AND date BETWEEN $2 AND $3
 		ORDER BY date DESC
 		LIMIT $4 OFFSET $5
 	`
-	rows, err := r.db.QueryContext(ctx, query, userID, startDate, endDate, limit, offset)
+	rows, err := r.db.QueryContext(ctx, query, employeeID, startDate, endDate, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list attendances: %w", err)
 	}
@@ -154,14 +154,14 @@ func (r *attendanceRepository) ListByUserPaged(ctx context.Context, userID strin
 	return r.scanAttendances(rows)
 }
 
-func (r *attendanceRepository) CountByUser(ctx context.Context, userID string, startDate, endDate time.Time) (int, error) {
+func (r *attendanceRepository) CountByEmployee(ctx context.Context, employeeID string, startDate, endDate time.Time) (int, error) {
 	query := `
 		SELECT COUNT(*)
 		FROM attendances
-		WHERE user_id = $1 AND date BETWEEN $2 AND $3
+		WHERE employee_id = $1 AND date BETWEEN $2 AND $3
 	`
 	var count int
-	if err := r.db.QueryRowContext(ctx, query, userID, startDate, endDate).Scan(&count); err != nil {
+	if err := r.db.QueryRowContext(ctx, query, employeeID, startDate, endDate).Scan(&count); err != nil {
 		return 0, fmt.Errorf("failed to count attendances: %w", err)
 	}
 	return count, nil
@@ -172,7 +172,7 @@ func (r *attendanceRepository) scanAttendances(rows *sql.Rows) ([]*entity.Attend
 	for rows.Next() {
 		attendance := &entity.Attendance{}
 		err := rows.Scan(
-			&attendance.ID, &attendance.UserID, &attendance.Date,
+			&attendance.ID, &attendance.EmployeeID, &attendance.Date,
 			&attendance.ClockIn, &attendance.ClockOut,
 			&attendance.CreatedAt, &attendance.UpdatedAt,
 		)

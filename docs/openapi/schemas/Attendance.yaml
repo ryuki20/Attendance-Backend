@@ -5,11 +5,11 @@ properties:
     format: uuid
     example: '550e8400-e29b-41d4-a716-446655440000'
     description: 勤怠ID
-  user_id:
+  employee_id:
     type: string
     format: uuid
     example: '550e8400-e29b-41d4-a716-446655440001'
-    description: ユーザーID
+    description: 社員ID
   date:
     type: string
     format: date
@@ -30,10 +30,10 @@ properties:
   created_at:
     type: string
     format: date-time
-    example: '2024-01-01T00:00:00Z'
+    example: '2024-01-01T18:00:00+09:00'
     description: 作成日時
   updated_at:
     type: string
     format: date-time
-    example: '2024-01-01T00:00:00Z'
+    example: '2024-01-01T18:00:00+09:00'
     description: 更新日時

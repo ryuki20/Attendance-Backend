@@ -42,7 +42,7 @@ func (m *AuthMiddleware) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		// クレームをコンテキストに保存
-		c.Set("user_id", claims.UserID)
+		c.Set("employee_id", claims.EmployeeID)
 		c.Set("role", claims.Role)
 
 		return next(c)

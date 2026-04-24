@@ -17,10 +17,10 @@ func NewAuthHandler(authUseCase usecase.AuthUseCase) *AuthHandler {
 }
 
 type RegisterRequest struct {
-	Email    string          `json:"email" validate:"required,email"`
-	Password string          `json:"password" validate:"required,min=6"`
-	Name     string          `json:"name" validate:"required"`
-	Role     entity.UserRole `json:"role" validate:"omitempty,oneof=admin employee"`
+	Email    string              `json:"email" validate:"required,email"`
+	Password string              `json:"password" validate:"required,min=6"`
+	Name     string              `json:"name" validate:"required"`
+	Role     entity.EmployeeRole `json:"role" validate:"omitempty,oneof=admin employee"`
 }
 
 type LoginRequest struct {
@@ -29,8 +29,8 @@ type LoginRequest struct {
 }
 
 type AuthResponse struct {
-	Token string        `json:"token"`
-	User  *entity.User  `json:"user"`
+	Token    string           `json:"token"`
+	Employee *entity.Employee `json:"employee"`
 }
 
 func (h *AuthHandler) Register(c echo.Context) error {
@@ -47,19 +47,18 @@ func (h *AuthHandler) Register(c echo.Context) error {
 		})
 	}
 
-	// デフォルトロールの設定
 	if req.Role == "" {
 		req.Role = entity.RoleEmployee
 	}
 
-	user, err := h.authUseCase.Register(c.Request().Context(), req.Email, req.Password, req.Name, req.Role)
+	employee, err := h.authUseCase.Register(c.Request().Context(), req.Email, req.Password, req.Name, req.Role)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
 		})
 	}
 
-	return c.JSON(http.StatusCreated, user)
+	return c.JSON(http.StatusCreated, employee)
 }
 
 func (h *AuthHandler) Login(c echo.Context) error {
@@ -76,7 +75,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 		})
 	}
 
-	token, user, err := h.authUseCase.Login(c.Request().Context(), req.Email, req.Password)
+	token, employee, err := h.authUseCase.Login(c.Request().Context(), req.Email, req.Password)
 	if err != nil {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": err.Error(),
@@ -84,23 +83,21 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, AuthResponse{
-		Token: token,
-		User:  user,
+		Token:    token,
+		Employee: employee,
 	})
 }
 
 func (h *AuthHandler) Me(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	employeeID, ok := c.Get("employee_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
 		})
 	}
 
-	// ここでは簡易的に user_id と role を返す
-	// 実際にはユースケースを通じてユーザー情報を取得する方が良い
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"user_id": userID,
-		"role":    c.Get("role"),
+		"employee_id": employeeID,
+		"role":        c.Get("role"),
 	})
 }

@@ -1,6 +1,6 @@
 get:
   summary: 認証情報取得
-  description: 現在ログイン中のユーザー情報を取得します
+  description: 現在ログイン中の社員情報を取得します
   operationId: getMe
   tags:
     - auth
@@ -8,16 +8,17 @@ get:
     - bearerAuth: []
   responses:
     '200':
-      description: ユーザー情報取得成功
+      description: 社員情報取得成功
       content:
         application/json:
           schema:
             type: object
             properties:
-              user_id:
-                type: integer
-                example: 1
-                description: ユーザーID
+              employee_id:
+                type: string
+                format: uuid
+                example: '550e8400-e29b-41d4-a716-446655440000'
+                description: 社員ID
               role:
                 type: string
                 example: employee

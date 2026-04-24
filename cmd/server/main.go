@@ -30,13 +30,13 @@ func main() {
 	log.Println("Successfully connected to database")
 
 	// リポジトリの初期化
-	userRepo := repository.NewUserRepository(db)
+	employeeRepo := repository.NewEmployeeRepository(db)
 	attendanceRepo := repository.NewAttendanceRepository(db)
 
 	// ユースケースの初期化
-	authUseCase := usecase.NewAuthUseCase(userRepo, cfg.JWT.Secret, cfg.JWT.Expiration)
+	authUseCase := usecase.NewAuthUseCase(employeeRepo, cfg.JWT.Secret, cfg.JWT.Expiration)
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
-	adminUseCase := usecase.NewAdminUseCase(userRepo, attendanceRepo)
+	adminUseCase := usecase.NewAdminUseCase(employeeRepo, attendanceRepo)
 
 	// ハンドラーの初期化
 	authHandler := handler.NewAuthHandler(authUseCase)

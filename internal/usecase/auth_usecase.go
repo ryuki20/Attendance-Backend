@@ -14,49 +14,44 @@ import (
 )
 
 type AuthUseCase interface {
-	Register(ctx context.Context, email, password, name string, role entity.UserRole) (*entity.User, error)
-	Login(ctx context.Context, email, password string) (string, *entity.User, error)
-	ValidateToken(ctx context.Context, token string) (*entity.User, error)
+	Register(ctx context.Context, email, password, name string, role entity.EmployeeRole) (*entity.Employee, error)
+	Login(ctx context.Context, email, password string) (string, *entity.Employee, error)
+	ValidateToken(ctx context.Context, token string) (*entity.Employee, error)
 }
 
 type authUseCase struct {
-	userRepo  repository.UserRepository
-	jwtSecret string
-	jwtExp    time.Duration
+	employeeRepo repository.EmployeeRepository
+	jwtSecret    string
+	jwtExp       time.Duration
 }
 
-func NewAuthUseCase(userRepo repository.UserRepository, jwtSecret string, jwtExp time.Duration) AuthUseCase {
+func NewAuthUseCase(employeeRepo repository.EmployeeRepository, jwtSecret string, jwtExp time.Duration) AuthUseCase {
 	return &authUseCase{
-		userRepo:  userRepo,
-		jwtSecret: jwtSecret,
-		jwtExp:    jwtExp,
+		employeeRepo: employeeRepo,
+		jwtSecret:    jwtSecret,
+		jwtExp:       jwtExp,
 	}
 }
 
-func (uc *authUseCase) Register(ctx context.Context, email, password, name string, role entity.UserRole) (*entity.User, error) {
-	// メールアドレスの重複チェック
-	existingUser, _ := uc.userRepo.FindByEmail(ctx, email)
-	if existingUser != nil {
+func (uc *authUseCase) Register(ctx context.Context, email, password, name string, role entity.EmployeeRole) (*entity.Employee, error) {
+	existingEmployee, _ := uc.employeeRepo.FindByEmail(ctx, email)
+	if existingEmployee != nil {
 		return nil, fmt.Errorf("email already exists")
 	}
 
-	// パスワードのハッシュ化
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
 
-	// ロールのバリデーション
 	if !role.IsValid() {
 		role = entity.RoleEmployee
 	}
 
-	// UUIDの生成
-	userID := uuid.New().String()
+	employeeID := uuid.New().String()
 
-	// ユーザーの作成
-	user := &entity.User{
-		ID:           userID,
+	employee := &entity.Employee{
+		ID:           employeeID,
 		Email:        email,
 		PasswordHash: string(hashedPassword),
 		Name:         name,
@@ -65,46 +60,41 @@ func (uc *authUseCase) Register(ctx context.Context, email, password, name strin
 		UpdatedAt:    time.Now(),
 	}
 
-	if err := uc.userRepo.Create(ctx, user); err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
+	if err := uc.employeeRepo.Create(ctx, employee); err != nil {
+		return nil, fmt.Errorf("failed to create employee: %w", err)
 	}
 
-	return user, nil
+	return employee, nil
 }
 
-func (uc *authUseCase) Login(ctx context.Context, email, password string) (string, *entity.User, error) {
-	// ユーザーの取得
-	user, err := uc.userRepo.FindByEmail(ctx, email)
+func (uc *authUseCase) Login(ctx context.Context, email, password string) (string, *entity.Employee, error) {
+	employee, err := uc.employeeRepo.FindByEmail(ctx, email)
 	if err != nil {
 		return "", nil, fmt.Errorf("invalid credentials")
 	}
 
-	// パスワードの検証
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(employee.PasswordHash), []byte(password)); err != nil {
 		return "", nil, fmt.Errorf("invalid credentials")
 	}
 
-	// JWTトークンの生成
-	token, err := utils.GenerateJWT(user.ID, string(user.Role), uc.jwtSecret, uc.jwtExp)
+	token, err := utils.GenerateJWT(employee.ID, string(employee.Role), uc.jwtSecret, uc.jwtExp)
 	if err != nil {
 		return "", nil, fmt.Errorf("failed to generate token: %w", err)
 	}
 
-	return token, user, nil
+	return token, employee, nil
 }
 
-func (uc *authUseCase) ValidateToken(ctx context.Context, token string) (*entity.User, error) {
-	// トークンの検証
+func (uc *authUseCase) ValidateToken(ctx context.Context, token string) (*entity.Employee, error) {
 	claims, err := utils.ValidateJWT(token, uc.jwtSecret)
 	if err != nil {
 		return nil, fmt.Errorf("invalid token: %w", err)
 	}
 
-	// ユーザーの取得
-	user, err := uc.userRepo.FindByID(ctx, claims.UserID)
+	employee, err := uc.employeeRepo.FindByID(ctx, claims.EmployeeID)
 	if err != nil {
-		return nil, fmt.Errorf("user not found: %w", err)
+		return nil, fmt.Errorf("employee not found: %w", err)
 	}
 
-	return user, nil
+	return employee, nil
 }

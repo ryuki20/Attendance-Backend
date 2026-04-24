@@ -60,7 +60,7 @@ get:
                 type: string
                 format: uuid
                 example: '550e8400-e29b-41d4-a716-446655440000'
-                description: ユーザーID
+                description: 社員ID
               email:
                 type: string
                 format: email
@@ -115,7 +115,7 @@ get:
             attendances:
               records:
                 - id: '660e8400-e29b-41d4-a716-446655440001'
-                  user_id: '550e8400-e29b-41d4-a716-446655440000'
+                  employee_id: '550e8400-e29b-41d4-a716-446655440000'
                   date: '2024-01-15'
                   clock_in: '2024-01-15T09:00:00+09:00'
                   clock_out: '2024-01-15T18:00:00+09:00'

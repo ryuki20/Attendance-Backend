@@ -17,7 +17,7 @@ post:
             email:
               type: string
               format: email
-              example: user@example.com
+              example: yamada@example.com
               description: メールアドレス
             password:
               type: string
@@ -35,9 +35,9 @@ post:
               token:
                 type: string
                 description: JWT認証トークン
-                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiZW1wbG95ZWUiLCJleHAiOjE3MDk1ODI0MDB9.example
-              user:
-                $ref: '../schemas/User.yaml'
+                example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbXBsb3llZV9pZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCIsInJvbGUiOiJlbXBsb3llZSJ9.example
+              employee:
+                $ref: '../schemas/Employee.yaml'
     '401':
       description: 認証失敗
       content:

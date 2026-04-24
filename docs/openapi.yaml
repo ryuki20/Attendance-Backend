@@ -86,8 +86,8 @@ components:
         `Authorization: Bearer {token}`
 
   schemas:
-    User:
-      $ref: './openapi/schemas/User.yaml'
+    Employee:
+      $ref: './openapi/schemas/Employee.yaml'
 
     Attendance:
       $ref: './openapi/schemas/Attendance.yaml'

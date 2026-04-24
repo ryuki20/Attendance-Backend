@@ -19,22 +19,22 @@ func NewAttendanceHandler(attendanceUseCase usecase.AttendanceUseCase) *Attendan
 }
 
 type attendanceResponse struct {
-	ID        string  `json:"id"`
-	UserID    string  `json:"user_id"`
-	Date      string  `json:"date"`
-	ClockIn   *string `json:"clock_in"`
-	ClockOut  *string `json:"clock_out"`
-	CreatedAt string  `json:"created_at"`
-	UpdatedAt string  `json:"updated_at"`
+	ID         string  `json:"id"`
+	EmployeeID string  `json:"employee_id"`
+	Date       string  `json:"date"`
+	ClockIn    *string `json:"clock_in"`
+	ClockOut   *string `json:"clock_out"`
+	CreatedAt  string  `json:"created_at"`
+	UpdatedAt  string  `json:"updated_at"`
 }
 
 func toAttendanceResponse(a *entity.Attendance) attendanceResponse {
 	res := attendanceResponse{
-		ID:        a.ID,
-		UserID:    a.UserID,
-		Date:      a.Date.Format("2006-01-02"),
-		CreatedAt: a.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: a.UpdatedAt.Format(time.RFC3339),
+		ID:         a.ID,
+		EmployeeID: a.EmployeeID,
+		Date:       a.Date.Format("2006-01-02"),
+		CreatedAt:  a.CreatedAt.Format(time.RFC3339),
+		UpdatedAt:  a.UpdatedAt.Format(time.RFC3339),
 	}
 	if a.ClockIn != nil {
 		s := a.ClockIn.Format(time.RFC3339)
@@ -48,7 +48,7 @@ func toAttendanceResponse(a *entity.Attendance) attendanceResponse {
 }
 
 func (h *AttendanceHandler) GetAttendances(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	employeeID, ok := c.Get("employee_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
@@ -69,7 +69,7 @@ func (h *AttendanceHandler) GetAttendances(c echo.Context) error {
 		})
 	}
 
-	attendances, err := h.attendanceUseCase.GetAttendancesByMonth(c.Request().Context(), userID, yearMonth)
+	attendances, err := h.attendanceUseCase.GetAttendancesByMonth(c.Request().Context(), employeeID, yearMonth)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "internal server error",
@@ -84,14 +84,14 @@ func (h *AttendanceHandler) GetAttendances(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) ClockIn(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	employeeID, ok := c.Get("employee_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
 		})
 	}
 
-	attendance, err := h.attendanceUseCase.ClockIn(c.Request().Context(), userID)
+	attendance, err := h.attendanceUseCase.ClockIn(c.Request().Context(), employeeID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),
@@ -102,14 +102,14 @@ func (h *AttendanceHandler) ClockIn(c echo.Context) error {
 }
 
 func (h *AttendanceHandler) ClockOut(c echo.Context) error {
-	userID, ok := c.Get("user_id").(string)
+	employeeID, ok := c.Get("employee_id").(string)
 	if !ok {
 		return c.JSON(http.StatusUnauthorized, map[string]string{
 			"error": "unauthorized",
 		})
 	}
 
-	attendance, err := h.attendanceUseCase.ClockOut(c.Request().Context(), userID)
+	attendance, err := h.attendanceUseCase.ClockOut(c.Request().Context(), employeeID)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": err.Error(),

@@ -20,7 +20,7 @@ func NewAdminHandler(adminUseCase usecase.AdminUseCase) *AdminHandler {
 	return &AdminHandler{adminUseCase: adminUseCase}
 }
 
-type userResponse struct {
+type employeeResponse struct {
 	ID        string `json:"id"`
 	Email     string `json:"email"`
 	Name      string `json:"name"`
@@ -29,22 +29,22 @@ type userResponse struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
-func toUserResponse(u *entity.User) userResponse {
-	return userResponse{
-		ID:        u.ID,
-		Email:     u.Email,
-		Name:      u.Name,
-		Role:      string(u.Role),
-		CreatedAt: u.CreatedAt.Format(time.RFC3339),
-		UpdatedAt: u.UpdatedAt.Format(time.RFC3339),
+func toEmployeeResponse(e *entity.Employee) employeeResponse {
+	return employeeResponse{
+		ID:        e.ID,
+		Email:     e.Email,
+		Name:      e.Name,
+		Role:      string(e.Role),
+		CreatedAt: e.CreatedAt.Format(time.RFC3339),
+		UpdatedAt: e.UpdatedAt.Format(time.RFC3339),
 	}
 }
 
 type listEmployeesResponse struct {
-	Users   []userResponse `json:"users"`
-	Total   int            `json:"total"`
-	Page    int            `json:"page"`
-	PerPage int            `json:"per_page"`
+	Employees []employeeResponse `json:"employees"`
+	Total     int                `json:"total"`
+	Page      int                `json:"page"`
+	PerPage   int                `json:"per_page"`
 }
 
 type attendancesInEmployeeResponse struct {
@@ -55,7 +55,7 @@ type attendancesInEmployeeResponse struct {
 }
 
 type employeeDetailResponse struct {
-	userResponse
+	employeeResponse
 	Attendances attendancesInEmployeeResponse `json:"attendances"`
 }
 
@@ -116,7 +116,7 @@ func (h *AdminHandler) GetEmployee(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, employeeDetailResponse{
-		userResponse: toUserResponse(detail.User),
+		employeeResponse: toEmployeeResponse(detail.Employee),
 		Attendances: attendancesInEmployeeResponse{
 			Records: records,
 			Total:   detail.Total,
@@ -150,18 +150,18 @@ func (h *AdminHandler) GetEmployees(c echo.Context) error {
 		perPage = v
 	}
 
-	var role *entity.UserRole
+	var role *entity.EmployeeRole
 	if r := c.QueryParam("role"); r != "" {
-		ur := entity.UserRole(r)
-		if !ur.IsValid() {
+		er := entity.EmployeeRole(r)
+		if !er.IsValid() {
 			return c.JSON(http.StatusBadRequest, map[string]string{
 				"error": "role must be one of admin, employee",
 			})
 		}
-		role = &ur
+		role = &er
 	}
 
-	users, total, err := h.adminUseCase.ListEmployees(c.Request().Context(), page, perPage, role)
+	employees, total, err := h.adminUseCase.ListEmployees(c.Request().Context(), page, perPage, role)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"error": "internal server error",
@@ -169,13 +169,13 @@ func (h *AdminHandler) GetEmployees(c echo.Context) error {
 	}
 
 	res := listEmployeesResponse{
-		Users:   make([]userResponse, len(users)),
-		Total:   total,
-		Page:    page,
-		PerPage: perPage,
+		Employees: make([]employeeResponse, len(employees)),
+		Total:     total,
+		Page:      page,
+		PerPage:   perPage,
 	}
-	for i, u := range users {
-		res.Users[i] = toUserResponse(u)
+	for i, e := range employees {
+		res.Employees[i] = toEmployeeResponse(e)
 	}
 
 	return c.JSON(http.StatusOK, res)

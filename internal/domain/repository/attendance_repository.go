@@ -10,10 +10,10 @@ import (
 type AttendanceRepository interface {
 	Create(ctx context.Context, attendance *entity.Attendance) error
 	FindByID(ctx context.Context, id string) (*entity.Attendance, error)
-	FindByUserAndDate(ctx context.Context, userID string, date time.Time) (*entity.Attendance, error)
+	FindByEmployeeAndDate(ctx context.Context, employeeID string, date time.Time) (*entity.Attendance, error)
 	Update(ctx context.Context, attendance *entity.Attendance) error
 	Delete(ctx context.Context, id string) error
-	ListByUser(ctx context.Context, userID string, startDate, endDate time.Time) ([]*entity.Attendance, error)
-	ListByUserPaged(ctx context.Context, userID string, startDate, endDate time.Time, limit, offset int) ([]*entity.Attendance, error)
-	CountByUser(ctx context.Context, userID string, startDate, endDate time.Time) (int, error)
+	ListByEmployee(ctx context.Context, employeeID string, startDate, endDate time.Time) ([]*entity.Attendance, error)
+	ListByEmployeePaged(ctx context.Context, employeeID string, startDate, endDate time.Time, limit, offset int) ([]*entity.Attendance, error)
+	CountByEmployee(ctx context.Context, employeeID string, startDate, endDate time.Time) (int, error)
 }

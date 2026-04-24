@@ -4,11 +4,11 @@ properties:
     type: string
     format: uuid
     example: '550e8400-e29b-41d4-a716-446655440000'
-    description: ユーザーID
+    description: 社員ID
   email:
     type: string
     format: email
-    example: user@example.com
+    example: yamada@example.com
     description: メールアドレス
   name:
     type: string
@@ -22,10 +22,10 @@ properties:
   created_at:
     type: string
     format: date-time
-    example: '2024-01-01T00:00:00Z'
+    example: '2024-01-01T18:00:00+09:00'
     description: 作成日時
   updated_at:
     type: string
     format: date-time
-    example: '2024-01-01T00:00:00Z'
+    example: '2024-01-01T18:00:00+09:00'
     description: 更新日時

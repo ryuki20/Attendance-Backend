@@ -3,7 +3,7 @@ get:
   description: |
     全社員の一覧を取得します。
 
-    **このエンドポイントはadminロールのユーザーのみ実行できます。**
+    **このエンドポイントはadminロールの社員のみ実行できます。**
   operationId: getAdminEmployees
   tags:
     - admin
@@ -45,10 +45,10 @@ get:
           schema:
             type: object
             properties:
-              users:
+              employees:
                 type: array
                 items:
-                  $ref: '../schemas/User.yaml'
+                  $ref: '../schemas/Employee.yaml'
               total:
                 type: integer
                 description: 全件数

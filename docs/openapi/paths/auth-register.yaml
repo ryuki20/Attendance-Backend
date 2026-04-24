@@ -1,6 +1,6 @@
 post:
-  summary: ユーザー登録
-  description: 新規ユーザーを登録します
+  summary: 社員登録
+  description: 新規社員を登録します
   operationId: register
   tags:
     - auth
@@ -18,7 +18,7 @@ post:
             email:
               type: string
               format: email
-              example: user@example.com
+              example: yamada@example.com
               description: メールアドレス
             password:
               type: string
@@ -32,17 +32,17 @@ post:
               description: 名前
             role:
               type: string
-              enum: [admin, manager, employee]
+              enum: [admin, employee]
               default: employee
               example: employee
               description: ロール（省略時はemployee）
   responses:
     '201':
-      description: ユーザー登録成功
+      description: 社員登録成功
       content:
         application/json:
           schema:
-            $ref: '../schemas/User.yaml'
+            $ref: '../schemas/Employee.yaml'
     '400':
       description: バリデーションエラー
       content:
