@@ -137,6 +137,36 @@ func (r *attendanceRepository) ListByUser(ctx context.Context, userID string, st
 	return r.scanAttendances(rows)
 }
 
+func (r *attendanceRepository) ListByUserPaged(ctx context.Context, userID string, startDate, endDate time.Time, limit, offset int) ([]*entity.Attendance, error) {
+	query := `
+		SELECT id, user_id, date, clock_in, clock_out, created_at, updated_at
+		FROM attendances
+		WHERE user_id = $1 AND date BETWEEN $2 AND $3
+		ORDER BY date DESC
+		LIMIT $4 OFFSET $5
+	`
+	rows, err := r.db.QueryContext(ctx, query, userID, startDate, endDate, limit, offset)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list attendances: %w", err)
+	}
+	defer rows.Close()
+
+	return r.scanAttendances(rows)
+}
+
+func (r *attendanceRepository) CountByUser(ctx context.Context, userID string, startDate, endDate time.Time) (int, error) {
+	query := `
+		SELECT COUNT(*)
+		FROM attendances
+		WHERE user_id = $1 AND date BETWEEN $2 AND $3
+	`
+	var count int
+	if err := r.db.QueryRowContext(ctx, query, userID, startDate, endDate).Scan(&count); err != nil {
+		return 0, fmt.Errorf("failed to count attendances: %w", err)
+	}
+	return count, nil
+}
+
 func (r *attendanceRepository) scanAttendances(rows *sql.Rows) ([]*entity.Attendance, error) {
 	var attendances []*entity.Attendance
 	for rows.Next() {
