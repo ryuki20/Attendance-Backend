@@ -163,3 +163,62 @@ get:
             $ref: '../schemas/Error.yaml'
           example:
             error: internal server error
+
+delete:
+  summary: 社員削除
+  description: |
+    指定したIDの社員を削除します。
+
+    **このエンドポイントはadminロールの社員のみ実行できます。**
+
+    削除した社員に紐づく勤怠レコードも合わせて削除されます。
+    自分自身のアカウントは削除できません。
+  operationId: deleteAdminEmployee
+  tags:
+    - admin
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: 削除する社員のUUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '550e8400-e29b-41d4-a716-446655440000'
+  responses:
+    '200':
+      description: 社員削除成功
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Employee.yaml'
+    '400':
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: cannot delete your own account
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '403':
+      $ref: '../responses/ForbiddenError.yaml'
+    '404':
+      description: 社員が見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: employee not found
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error
