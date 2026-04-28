@@ -11,7 +11,7 @@ type EmployeeRepository interface {
 	FindByID(ctx context.Context, id string) (*entity.Employee, error)
 	FindByEmail(ctx context.Context, email string) (*entity.Employee, error)
 	Update(ctx context.Context, employee *entity.Employee) error
-	Delete(ctx context.Context, id string) error
+	Delete(ctx context.Context, id string) (*entity.Employee, error)
 	List(ctx context.Context, limit, offset int, role *entity.EmployeeRole) ([]*entity.Employee, error)
 	Count(ctx context.Context, role *entity.EmployeeRole) (int, error)
 }

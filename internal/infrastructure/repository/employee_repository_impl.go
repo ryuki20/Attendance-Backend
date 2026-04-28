@@ -101,21 +101,28 @@ func (r *employeeRepository) Update(ctx context.Context, employee *entity.Employ
 	return nil
 }
 
-func (r *employeeRepository) Delete(ctx context.Context, id string) error {
-	query := `DELETE FROM employees WHERE id = $1`
-	result, err := r.db.ExecContext(ctx, query, id)
+func (r *employeeRepository) Delete(ctx context.Context, id string) (*entity.Employee, error) {
+	query := `
+		DELETE 
+		FROM employees 
+		WHERE id = $1 
+		RETURNING id, email, password_hash, name, role, created_at, updated_at
+	`
+
+	employee := &entity.Employee{}
+	err := r.db.QueryRowContext(ctx, query, id).Scan(
+		&employee.ID, &employee.Email, &employee.PasswordHash, &employee.Name,
+		&employee.Role, &employee.CreatedAt, &employee.UpdatedAt,
+	)
+
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("employee not found")
+	}
 	if err != nil {
-		return fmt.Errorf("failed to delete employee: %w", err)
+		return nil, fmt.Errorf("failed to delete employee: %w", err)
 	}
 
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return fmt.Errorf("failed to get affected rows: %w", err)
-	}
-	if rows == 0 {
-		return fmt.Errorf("employee not found")
-	}
-	return nil
+	return employee, nil
 }
 
 func (r *employeeRepository) List(ctx context.Context, limit, offset int, role *entity.EmployeeRole) ([]*entity.Employee, error) {

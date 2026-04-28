@@ -23,6 +23,7 @@ type EmployeeDetail struct {
 type AdminUseCase interface {
 	ListEmployees(ctx context.Context, page, perPage int, role *entity.EmployeeRole) ([]*entity.Employee, int, error)
 	GetEmployee(ctx context.Context, id, yearMonth string, page, perPage int) (*EmployeeDetail, error)
+	DeleteEmployee(ctx context.Context, id string) (*entity.Employee, error)
 }
 
 type adminUseCase struct {
@@ -84,4 +85,17 @@ func (uc *adminUseCase) ListEmployees(ctx context.Context, page, perPage int, ro
 	}
 
 	return employees, total, nil
+}
+
+func (uc *adminUseCase) DeleteEmployee(ctx context.Context, id string) (*entity.Employee, error) {
+	employee, err := uc.employeeRepo.Delete(ctx, id)
+
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, ErrEmployeeNotFound
+		}
+		return nil, fmt.Errorf("failed to delete employee: %w", err)
+	}
+
+	return employee, nil
 }

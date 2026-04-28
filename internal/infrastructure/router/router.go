@@ -73,6 +73,7 @@ func (r *Router) Setup() *echo.Echo {
 	admin.Use(r.authMiddleware.AdminOnly)
 	admin.GET("/employees", r.adminHandler.GetEmployees)
 	admin.GET("/employees/:id", r.adminHandler.GetEmployee)
+	admin.DELETE("/employees/:id", r.adminHandler.DeleteEmployee)
 
 	return r.echo
 }
