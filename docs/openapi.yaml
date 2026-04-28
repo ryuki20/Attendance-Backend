@@ -72,7 +72,10 @@ paths:
     $ref: './openapi/paths/admin-employees.yaml'
 
   /api/v1/admin/employees/{id}:
-    $ref: './openapi/paths/admin-employees-id.yaml'
+    get:
+      $ref: './openapi/paths/admin-employees-id.yaml#/get'
+    delete:
+      $ref: './openapi/paths/admin-employees-id.yaml#/delete'
 
 components:
   securitySchemes:
