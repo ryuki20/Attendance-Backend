@@ -180,3 +180,34 @@ func (h *AdminHandler) GetEmployees(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, res)
 }
+
+func (h *AdminHandler) DeleteEmployee(c echo.Context) error {
+	id := c.Param("id")
+
+	employeeID, ok := c.Get("employee_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "unauthorized",
+		})
+	}
+
+	if id == employeeID {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "cannot delete your own account",
+		})
+	}
+
+	employee, err := h.adminUseCase.DeleteEmployee(c.Request().Context(), id)
+	if err != nil {
+		if errors.Is(err, usecase.ErrEmployeeNotFound) {
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"error": "employee not found",
+			})
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "internal server error",
+		})
+	}
+
+	return c.JSON(http.StatusOK, toEmployeeResponse(employee))
+}
