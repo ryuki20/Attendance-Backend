@@ -1,0 +1,186 @@
+get:
+  summary: 自分の申請一覧取得
+  description: |
+    ログイン中の社員自身の申請一覧を取得します。
+  operationId: getApplications
+  tags:
+    - application
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: status
+      in: query
+      description: ステータスでフィルタリング
+      required: false
+      schema:
+        type: string
+        enum: [PENDING, APPROVED, REJECTED]
+        example: PENDING
+    - name: page
+      in: query
+      description: ページ番号（1始まり）
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+        example: 1
+    - name: per_page
+      in: query
+      description: 1ページあたりの件数
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
+  responses:
+    '200':
+      description: 申請一覧取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              applications:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '../schemas/AttendanceCorrectionApplication.yaml'
+                  discriminator:
+                    propertyName: type
+                    mapping:
+                      ATTENDANCE_CORRECTION: '../schemas/AttendanceCorrectionApplication.yaml'
+              total:
+                type: integer
+                description: 全件数
+                example: 5
+              page:
+                type: integer
+                description: 現在のページ番号
+                example: 1
+              per_page:
+                type: integer
+                description: 1ページあたりの件数
+                example: 20
+    '400':
+      description: パラメータエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: invalid status value
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error
+
+post:
+  summary: 打刻修正申請を作成
+  description: |
+    勤怠打刻の修正申請を行います。
+
+    `requested_clock_in` と `requested_clock_out` の少なくとも一方は必須です。
+  operationId: createApplication
+  tags:
+    - application
+  security:
+    - bearerAuth: []
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - type
+            - date
+            - reason
+          properties:
+            type:
+              type: string
+              enum: [ATTENDANCE_CORRECTION]
+              example: ATTENDANCE_CORRECTION
+              description: 申請種別
+            date:
+              type: string
+              format: date
+              example: '2024-01-15'
+              description: 修正対象の日付
+            requested_clock_in:
+              type: string
+              format: date-time
+              nullable: true
+              example: '2024-01-15T09:30:00+09:00'
+              description: 修正後の出勤時刻（requested_clock_out と少なくとも一方必須）
+            requested_clock_out:
+              type: string
+              format: date-time
+              nullable: true
+              example: '2024-01-15T18:30:00+09:00'
+              description: 修正後の退勤時刻（requested_clock_in と少なくとも一方必須）
+            reason:
+              type: string
+              example: '電車の遅延により出勤時刻が遅れました'
+              description: 申請理由
+        examples:
+          clock_in_only:
+            summary: 出勤時刻のみ修正
+            value:
+              type: ATTENDANCE_CORRECTION
+              date: '2024-01-15'
+              requested_clock_in: '2024-01-15T09:30:00+09:00'
+              reason: '電車の遅延により出勤時刻が遅れました'
+          both:
+            summary: 出勤・退勤両方修正
+            value:
+              type: ATTENDANCE_CORRECTION
+              date: '2024-01-15'
+              requested_clock_in: '2024-01-15T09:30:00+09:00'
+              requested_clock_out: '2024-01-15T18:30:00+09:00'
+              reason: '打刻を忘れていました'
+  responses:
+    '200':
+      description: 申請作成成功
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '../schemas/AttendanceCorrectionApplication.yaml'
+            discriminator:
+              propertyName: type
+              mapping:
+                ATTENDANCE_CORRECTION: '../schemas/AttendanceCorrectionApplication.yaml'
+    '400':
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          examples:
+            missing_fields:
+              summary: 必須項目不足
+              value:
+                error: requested_clock_in or requested_clock_out is required
+            invalid_date:
+              summary: 日付が不正
+              value:
+                error: invalid date format
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error

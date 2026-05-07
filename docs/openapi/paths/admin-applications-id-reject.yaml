@@ -1,0 +1,94 @@
+patch:
+  summary: 申請却下（管理者）
+  description: |
+    指定した申請を却下します。
+
+    `PENDING`（申請中）状態の申請のみ却下可能です。
+    申請者に理由を伝えるため `admin_comment` の入力を推奨します。
+
+    **このエンドポイントはadminロールの社員のみ実行できます。**
+  operationId: rejectAdminApplication
+  tags:
+    - admin
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: 申請ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '550e8400-e29b-41d4-a716-446655440001'
+  requestBody:
+    required: false
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            admin_comment:
+              type: string
+              nullable: true
+              example: '勤務実績と合致しないため却下します。再申請してください。'
+              description: 却下理由
+  responses:
+    '200':
+      description: 却下成功
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '../schemas/AttendanceCorrectionApplicationDetail.yaml'
+            discriminator:
+              propertyName: type
+              mapping:
+                ATTENDANCE_CORRECTION: '../schemas/AttendanceCorrectionApplicationDetail.yaml'
+          example:
+            id: '550e8400-e29b-41d4-a716-446655440001'
+            employee:
+              id: '550e8400-e29b-41d4-a716-446655440000'
+              name: '山田太郎'
+            type: ATTENDANCE_CORRECTION
+            status: REJECTED
+            reason: '電車の遅延により出勤時刻が遅れました'
+            details:
+              date: '2024-01-15'
+              requested_clock_in: '2024-01-15T09:30:00+09:00'
+              requested_clock_out: null
+            approved_by:
+              id: '550e8400-e29b-41d4-a716-446655440099'
+              name: '鈴木管理者'
+            approved_at: '2024-01-16T10:00:00+09:00'
+            admin_comment: '勤務実績と合致しないため却下します。再申請してください。'
+            created_at: '2024-01-15T09:00:00+09:00'
+            updated_at: '2024-01-16T10:00:00+09:00'
+    '400':
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: only pending applications can be rejected
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '403':
+      $ref: '../responses/ForbiddenError.yaml'
+    '404':
+      description: 申請が見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: application not found
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error

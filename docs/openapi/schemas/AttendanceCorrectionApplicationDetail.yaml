@@ -1,0 +1,29 @@
+allOf:
+  - $ref: './AttendanceCorrectionApplication.yaml'
+  - type: object
+    properties:
+      approved_by:
+        type: object
+        nullable: true
+        description: 承認/却下した管理者情報（未処理の場合はnull）
+        properties:
+          id:
+            type: string
+            format: uuid
+            example: '550e8400-e29b-41d4-a716-446655440099'
+            description: 管理者ID
+          name:
+            type: string
+            example: '鈴木管理者'
+            description: 管理者名
+      approved_at:
+        type: string
+        format: date-time
+        nullable: true
+        example: '2024-01-16T10:00:00+09:00'
+        description: 承認/却下日時（未処理の場合はnull）
+      admin_comment:
+        type: string
+        nullable: true
+        example: '確認しました。修正を承認します。'
+        description: 管理者コメント（却下理由など）

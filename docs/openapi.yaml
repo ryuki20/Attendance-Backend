@@ -43,6 +43,8 @@ tags:
     description: 認証関連のエンドポイント
   - name: attendance
     description: 勤怠管理のエンドポイント
+  - name: application
+    description: 申請関連のエンドポイント（打刻修正申請など）
   - name: admin
     description: 管理者専用のエンドポイント（adminロールのみ）
 
@@ -68,14 +70,29 @@ paths:
   /api/v1/attendances/clock-out:
     $ref: './openapi/paths/attendances-clock-out.yaml'
 
+  /api/v1/applications:
+    $ref: './openapi/paths/applications.yaml'
+
+  /api/v1/applications/{id}:
+    $ref: './openapi/paths/applications-id.yaml'
+
   /api/v1/admin/employees:
     $ref: './openapi/paths/admin-employees.yaml'
 
   /api/v1/admin/employees/{id}:
-    get:
-      $ref: './openapi/paths/admin-employees-id.yaml#/get'
-    delete:
-      $ref: './openapi/paths/admin-employees-id.yaml#/delete'
+    $ref: './openapi/paths/admin-employees-id.yaml'
+
+  /api/v1/admin/applications:
+    $ref: './openapi/paths/admin-applications.yaml'
+
+  /api/v1/admin/applications/{id}:
+    $ref: './openapi/paths/admin-applications-id.yaml'
+
+  /api/v1/admin/applications/{id}/approve:
+    $ref: './openapi/paths/admin-applications-id-approve.yaml'
+
+  /api/v1/admin/applications/{id}/reject:
+    $ref: './openapi/paths/admin-applications-id-reject.yaml'
 
 components:
   securitySchemes:
@@ -97,6 +114,15 @@ components:
 
     Error:
       $ref: './openapi/schemas/Error.yaml'
+
+    ApplicationBase:
+      $ref: './openapi/schemas/ApplicationBase.yaml'
+
+    AttendanceCorrectionApplication:
+      $ref: './openapi/schemas/AttendanceCorrectionApplication.yaml'
+
+    AttendanceCorrectionApplicationDetail:
+      $ref: './openapi/schemas/AttendanceCorrectionApplicationDetail.yaml'
 
   responses:
     UnauthorizedError:

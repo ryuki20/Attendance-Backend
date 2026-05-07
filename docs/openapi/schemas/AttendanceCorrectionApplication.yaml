@@ -1,0 +1,27 @@
+allOf:
+  - $ref: './ApplicationBase.yaml'
+  - type: object
+    properties:
+      details:
+        type: object
+        description: 打刻修正申請の詳細（requested_clock_in と requested_clock_out の少なくとも一方は必須）
+        required:
+          - date
+        properties:
+          date:
+            type: string
+            format: date
+            example: '2024-01-15'
+            description: 修正対象の日付
+          requested_clock_in:
+            type: string
+            format: date-time
+            nullable: true
+            example: '2024-01-15T09:30:00+09:00'
+            description: 修正後の出勤時刻（nullの場合は修正不要）
+          requested_clock_out:
+            type: string
+            format: date-time
+            nullable: true
+            example: '2024-01-15T18:30:00+09:00'
+            description: 修正後の退勤時刻（nullの場合は修正不要）

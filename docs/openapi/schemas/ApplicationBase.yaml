@@ -1,0 +1,48 @@
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: '550e8400-e29b-41d4-a716-446655440001'
+    description: 申請ID
+  employee:
+    type: object
+    description: 申請者情報
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: '550e8400-e29b-41d4-a716-446655440000'
+        description: 申請者ID
+      name:
+        type: string
+        example: '山田太郎'
+        description: 申請者名
+  type:
+    type: string
+    enum: [ATTENDANCE_CORRECTION]
+    example: ATTENDANCE_CORRECTION
+    description: 申請種別（将来的に休暇申請などが追加される予定）
+  status:
+    type: string
+    enum: [PENDING, APPROVED, REJECTED]
+    example: PENDING
+    description: |
+      申請ステータス
+      - `PENDING`: 申請中
+      - `APPROVED`: 承認済み
+      - `REJECTED`: 却下済み
+  reason:
+    type: string
+    example: '電車の遅延により出勤時刻が遅れました'
+    description: 申請理由
+  created_at:
+    type: string
+    format: date-time
+    example: '2024-01-15T09:00:00+09:00'
+    description: 申請日時
+  updated_at:
+    type: string
+    format: date-time
+    example: '2024-01-15T09:00:00+09:00'
+    description: 更新日時

@@ -1,0 +1,52 @@
+get:
+  summary: 申請詳細取得（管理者）
+  description: |
+    指定した申請の詳細を取得します。承認者情報や管理者コメントを含みます。
+
+    **このエンドポイントはadminロールの社員のみ実行できます。**
+  operationId: getAdminApplication
+  tags:
+    - admin
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: 申請ID
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '550e8400-e29b-41d4-a716-446655440001'
+  responses:
+    '200':
+      description: 申請詳細取得成功
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '../schemas/AttendanceCorrectionApplicationDetail.yaml'
+            discriminator:
+              propertyName: type
+              mapping:
+                attendance_correction: '../schemas/AttendanceCorrectionApplicationDetail.yaml'
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '403':
+      $ref: '../responses/ForbiddenError.yaml'
+    '404':
+      description: 申請が見つかりません
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: application not found
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error
