@@ -29,7 +29,7 @@ get:
             discriminator:
               propertyName: type
               mapping:
-                attendance_correction: '../schemas/AttendanceCorrectionApplicationDetail.yaml'
+                ATTENDANCE_CORRECTION: '../schemas/AttendanceCorrectionApplicationDetail.yaml'
     '401':
       $ref: '../responses/UnauthorizedError.yaml'
     '403':
