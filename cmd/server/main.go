@@ -32,22 +32,25 @@ func main() {
 	// リポジトリの初期化
 	employeeRepo := repository.NewEmployeeRepository(db)
 	attendanceRepo := repository.NewAttendanceRepository(db)
+	applicationRepo := repository.NewApplicationRepository(db)
 
 	// ユースケースの初期化
 	authUseCase := usecase.NewAuthUseCase(employeeRepo, cfg.JWT.Secret, cfg.JWT.Expiration)
 	attendanceUseCase := usecase.NewAttendanceUseCase(attendanceRepo)
 	adminUseCase := usecase.NewAdminUseCase(employeeRepo, attendanceRepo)
+	applicationUseCase := usecase.NewApplicationUseCase(applicationRepo)
 
 	// ハンドラーの初期化
 	authHandler := handler.NewAuthHandler(authUseCase)
 	attendanceHandler := handler.NewAttendanceHandler(attendanceUseCase)
 	adminHandler := handler.NewAdminHandler(adminUseCase)
+	applicationHandler := handler.NewApplicationHandler(applicationUseCase)
 
 	// ミドルウェアの初期化
 	authMiddleware := middleware.NewAuthMiddleware(cfg.JWT.Secret)
 
 	// ルーターの初期化
-	r := router.NewRouter(authHandler, attendanceHandler, adminHandler, authMiddleware, cfg.CORS.AllowOrigins)
+	r := router.NewRouter(authHandler, attendanceHandler, adminHandler, applicationHandler, authMiddleware, cfg.CORS.AllowOrigins)
 	e := r.Setup()
 
 	// サーバーの起動

@@ -8,28 +8,31 @@ import (
 )
 
 type Router struct {
-	echo              *echo.Echo
-	authHandler       *handler.AuthHandler
-	attendanceHandler *handler.AttendanceHandler
-	adminHandler      *handler.AdminHandler
-	authMiddleware    *custommw.AuthMiddleware
-	corsOrigins       []string
+	echo                *echo.Echo
+	authHandler         *handler.AuthHandler
+	attendanceHandler   *handler.AttendanceHandler
+	adminHandler        *handler.AdminHandler
+	applicationHandler  *handler.ApplicationHandler
+	authMiddleware      *custommw.AuthMiddleware
+	corsOrigins         []string
 }
 
 func NewRouter(
 	authHandler *handler.AuthHandler,
 	attendanceHandler *handler.AttendanceHandler,
 	adminHandler *handler.AdminHandler,
+	applicationHandler *handler.ApplicationHandler,
 	authMiddleware *custommw.AuthMiddleware,
 	corsOrigins []string,
 ) *Router {
 	return &Router{
-		echo:              echo.New(),
-		authHandler:       authHandler,
-		attendanceHandler: attendanceHandler,
-		adminHandler:      adminHandler,
-		authMiddleware:    authMiddleware,
-		corsOrigins:       corsOrigins,
+		echo:               echo.New(),
+		authHandler:        authHandler,
+		attendanceHandler:  attendanceHandler,
+		adminHandler:       adminHandler,
+		applicationHandler: applicationHandler,
+		authMiddleware:     authMiddleware,
+		corsOrigins:        corsOrigins,
 	}
 }
 
@@ -68,12 +71,22 @@ func (r *Router) Setup() *echo.Echo {
 	attendance.POST("/clock-in", r.attendanceHandler.ClockIn)
 	attendance.POST("/clock-out", r.attendanceHandler.ClockOut)
 
+	// Application routes (authenticated users)
+	applications := protected.Group("/applications")
+	applications.GET("", r.applicationHandler.GetApplications)
+	applications.POST("", r.applicationHandler.CreateApplication)
+	applications.DELETE("/:id", r.applicationHandler.CancelApplication)
+
 	// Admin routes (admin only)
 	admin := protected.Group("/admin")
 	admin.Use(r.authMiddleware.AdminOnly)
 	admin.GET("/employees", r.adminHandler.GetEmployees)
 	admin.GET("/employees/:id", r.adminHandler.GetEmployee)
 	admin.DELETE("/employees/:id", r.adminHandler.DeleteEmployee)
+	admin.GET("/applications", r.applicationHandler.AdminGetApplications)
+	admin.GET("/applications/:id", r.applicationHandler.AdminGetApplication)
+	admin.PATCH("/applications/:id/approve", r.applicationHandler.ApproveApplication)
+	admin.PATCH("/applications/:id/reject", r.applicationHandler.RejectApplication)
 
 	return r.echo
 }
