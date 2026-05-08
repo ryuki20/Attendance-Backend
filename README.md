@@ -103,39 +103,6 @@ make help
 
 Airを使用しているため、コードを変更すると自動的にサーバーが再起動します。
 
-## データベース
-
-### テーブル構造
-
-#### users
-- id (serial)
-- email (varchar)
-- password_hash (varchar)
-- name (varchar)
-- role (varchar)
-- created_at (timestamp)
-- updated_at (timestamp)
-
-#### attendances
-- id (serial)
-- user_id (integer)
-- date (date)
-- clock_in (timestamp)
-- clock_out (timestamp)
-- break_start (timestamp)
-- break_end (timestamp)
-- status (varchar)
-- notes (text)
-- created_at (timestamp)
-- updated_at (timestamp)
-
-## セキュリティ
-
-- パスワードはbcryptでハッシュ化
-- JWT認証を使用
-- ロールベースのアクセス制御（RBAC）
-- CORS設定
-
 ## 本番環境への展開
 
 本番環境では以下を変更してください：
