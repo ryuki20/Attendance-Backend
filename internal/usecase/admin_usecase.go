@@ -11,6 +11,7 @@ import (
 )
 
 var ErrEmployeeNotFound = fmt.Errorf("employee not found")
+var ErrEmailAlreadyInUse = fmt.Errorf("email already in use")
 
 type EmployeeDetail struct {
 	Employee    *entity.Employee
@@ -20,9 +21,16 @@ type EmployeeDetail struct {
 	PerPage     int
 }
 
+type UpdateEmployeeInput struct {
+	Name  *string
+	Email *string
+	Role  *entity.EmployeeRole
+}
+
 type AdminUseCase interface {
 	ListEmployees(ctx context.Context, page, perPage int, role *entity.EmployeeRole) ([]*entity.Employee, int, error)
 	GetEmployee(ctx context.Context, id, yearMonth string, page, perPage int) (*EmployeeDetail, error)
+	UpdateEmployee(ctx context.Context, id string, input UpdateEmployeeInput) (*entity.Employee, error)
 	DeleteEmployee(ctx context.Context, id string) (*entity.Employee, error)
 }
 
@@ -85,6 +93,43 @@ func (uc *adminUseCase) ListEmployees(ctx context.Context, page, perPage int, ro
 	}
 
 	return employees, total, nil
+}
+
+func (uc *adminUseCase) UpdateEmployee(ctx context.Context, id string, input UpdateEmployeeInput) (*entity.Employee, error) {
+	employee, err := uc.employeeRepo.FindByID(ctx, id)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, ErrEmployeeNotFound
+		}
+		return nil, fmt.Errorf("failed to get employee: %w", err)
+	}
+
+	if input.Email != nil {
+		existing, err := uc.employeeRepo.FindByEmail(ctx, *input.Email)
+		if err == nil && existing.ID != id {
+			return nil, ErrEmailAlreadyInUse
+		}
+	}
+
+	if input.Name != nil {
+		employee.Name = *input.Name
+	}
+	if input.Email != nil {
+		employee.Email = *input.Email
+	}
+	if input.Role != nil {
+		employee.Role = *input.Role
+	}
+	employee.UpdatedAt = time.Now()
+
+	if err := uc.employeeRepo.Update(ctx, employee); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return nil, ErrEmployeeNotFound
+		}
+		return nil, fmt.Errorf("failed to update employee: %w", err)
+	}
+
+	return employee, nil
 }
 
 func (uc *adminUseCase) DeleteEmployee(ctx context.Context, id string) (*entity.Employee, error) {

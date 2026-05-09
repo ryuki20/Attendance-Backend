@@ -1,3 +1,128 @@
+patch:
+  summary: 社員情報更新
+  description: |
+    指定したIDの社員情報を更新します。
+
+    **このエンドポイントはadminロールの社員のみ実行できます。**
+
+    `name` / `email` / `role` のうち少なくとも1つを指定してください。
+    自分自身の `role` を変更することはできません。
+  operationId: updateAdminEmployee
+  tags:
+    - admin
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: 更新する社員のUUID
+      required: true
+      schema:
+        type: string
+        format: uuid
+        example: '550e8400-e29b-41d4-a716-446655440000'
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+              example: 山田太郎
+              description: 名前
+            email:
+              type: string
+              format: email
+              example: yamada@example.com
+              description: メールアドレス
+            role:
+              type: string
+              enum: [admin, employee]
+              example: employee
+              description: ロール
+        examples:
+          name_only:
+            summary: 名前のみ更新
+            value:
+              name: 山田花子
+          email_and_role:
+            summary: メールアドレスとロールを更新
+            value:
+              email: hanako@example.com
+              role: admin
+  responses:
+    '200':
+      description: 社員情報更新成功
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Employee.yaml'
+          example:
+            id: '550e8400-e29b-41d4-a716-446655440000'
+            email: yamada@example.com
+            name: 山田太郎
+            role: employee
+            created_at: '2024-01-01T09:00:00+09:00'
+            updated_at: '2026-05-09T18:00:00+09:00'
+    '400':
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          examples:
+            no_fields:
+              summary: 更新フィールドが未指定
+              value:
+                error: at least one field (name, email, role) must be provided
+            invalid_role:
+              summary: roleの値が不正
+              value:
+                error: role must be one of [admin, employee]
+    '401':
+      $ref: '../responses/UnauthorizedError.yaml'
+    '403':
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          examples:
+            forbidden:
+              summary: 管理者以外がアクセス
+              value:
+                error: forbidden
+            self_role_change:
+              summary: 自分自身のroleを変更しようとした
+              value:
+                error: cannot change your own role
+    '404':
+      description: 社員が見つからない
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: employee not found
+    '409':
+      description: メールアドレスが既に使用されている
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: email already in use
+    '500':
+      description: サーバーエラー
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/Error.yaml'
+          example:
+            error: internal server error
+
 get:
   summary: 社員詳細取得
   description: |

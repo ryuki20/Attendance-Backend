@@ -181,6 +181,78 @@ func (h *AdminHandler) GetEmployees(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+type updateEmployeeRequest struct {
+	Name  *string `json:"name"`
+	Email *string `json:"email"`
+	Role  *string `json:"role"`
+}
+
+func (h *AdminHandler) UpdateEmployee(c echo.Context) error {
+	id := c.Param("id")
+
+	employeeID, ok := c.Get("employee_id").(string)
+	if !ok {
+		return c.JSON(http.StatusUnauthorized, map[string]string{
+			"error": "unauthorized",
+		})
+	}
+
+	var req updateEmployeeRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "invalid request body",
+		})
+	}
+
+	if req.Name == nil && req.Email == nil && req.Role == nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "at least one field (name, email, role) must be provided",
+		})
+	}
+
+	var role *entity.EmployeeRole
+	if req.Role != nil {
+		r := entity.EmployeeRole(*req.Role)
+		if !r.IsValid() {
+			return c.JSON(http.StatusBadRequest, map[string]string{
+				"error": "role must be one of [admin, employee]",
+			})
+		}
+		if id == employeeID {
+			return c.JSON(http.StatusForbidden, map[string]string{
+				"error": "cannot change your own role",
+			})
+		}
+		role = &r
+	}
+
+	input := usecase.UpdateEmployeeInput{
+		Name:  req.Name,
+		Email: req.Email,
+		Role:  role,
+	}
+
+	employee, err := h.adminUseCase.UpdateEmployee(c.Request().Context(), id, input)
+	if err != nil {
+		switch {
+		case errors.Is(err, usecase.ErrEmployeeNotFound):
+			return c.JSON(http.StatusNotFound, map[string]string{
+				"error": "employee not found",
+			})
+		case errors.Is(err, usecase.ErrEmailAlreadyInUse):
+			return c.JSON(http.StatusConflict, map[string]string{
+				"error": "email already in use",
+			})
+		default:
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"error": "internal server error",
+			})
+		}
+	}
+
+	return c.JSON(http.StatusOK, toEmployeeResponse(employee))
+}
+
 func (h *AdminHandler) DeleteEmployee(c echo.Context) error {
 	id := c.Param("id")
 
