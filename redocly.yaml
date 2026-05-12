@@ -1,0 +1,8 @@
+apis:
+  main@v1:
+    root: docs/openapi.yaml
+
+theme:
+  openapi:
+    disableSearch: false
+    jsonSampleExpandLevel: 2

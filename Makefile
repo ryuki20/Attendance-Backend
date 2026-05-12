@@ -1,4 +1,4 @@
-.PHONY: help up down build logs migrate-up migrate-down migrate-create clean
+.PHONY: help up down build logs migrate-up migrate-down migrate-create clean docs
 
 help: ## Show this help message
 	@echo 'Usage: make [target]'
@@ -34,3 +34,6 @@ migrate-create: ## Create a new migration file (usage: make migrate-create name=
 clean: ## Clean up docker volumes and containers
 	docker compose down -v
 	rm -rf tmp/
+
+docs: ## Start docs preview server (http://localhost:8081)
+	cd docs && python3 -m http.server 8081
